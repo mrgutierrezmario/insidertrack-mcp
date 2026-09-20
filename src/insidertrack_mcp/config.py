@@ -20,9 +20,11 @@ class Settings(BaseSettings):
         default="http://localhost:8013",
         description="Base URL of the InsiderTrack API (inside the Compose stack: http://app:8003).",
     )
-    insidertrack_admin_token: str = Field(
-        default="",
-        description="InsiderTrack admin token; only needed when MCP_ALLOW_WRITES=1.",
+    insidertrack_watchlist_email: str = Field(
+        default="", description="Owner's watchlist e-mail on the site (for watchlist_add)."
+    )
+    insidertrack_watchlist_token: str = Field(
+        default="", description="That e-mail's watchlist bearer token (for watchlist_add)."
     )
     mcp_transport: str = Field(
         default="stdio",
@@ -40,6 +42,16 @@ class Settings(BaseSettings):
         ),
     )
     mcp_allow_writes: bool = Field(default=False, description="Enable the watchlist_add tool.")
+
+    @property
+    def writes_enabled(self) -> bool:
+        """The write tool is registered only with the flag and both watchlist values."""
+        return bool(
+            self.mcp_allow_writes
+            and self.insidertrack_watchlist_email
+            and self.insidertrack_watchlist_token
+        )
+
     upstream_timeout_seconds: float = 10.0
     rate_limit_per_minute: int = 60
     max_rows: int = 100

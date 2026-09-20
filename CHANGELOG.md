@@ -13,5 +13,8 @@ versions: [Semantic Versioning](https://semver.org/).
   recorded response and verified against a live instance.
 - Cautious upstream client: timeout, error objects instead of exceptions, detection of the
   app's HTML fallback.
+- `watchlist_add`, the one write, registered only when `MCP_ALLOW_WRITES=1` and the owner's
+  watchlist e-mail + token are configured; acts as that identity, never as an admin.
+- Server mounted at `/mcp` (health at `/mcp/health`) to sit behind a Tailscale serve path rule.
 - Docker image, Compose snippet for the InsiderTrack stack, CI (ruff, pytest, image build +
   smoke), Dependabot with auto-merge for patch/minor bumps.

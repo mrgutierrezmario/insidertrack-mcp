@@ -16,7 +16,7 @@ def http(monkeypatch):
 
 
 def test_health_needs_no_token(http):
-    response = http.get("/health")
+    response = http.get("/mcp/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
 

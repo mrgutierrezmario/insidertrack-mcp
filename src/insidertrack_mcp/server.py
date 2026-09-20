@@ -86,6 +86,18 @@ for _fn in tools.TOOLS:
         ),
     )
 
+# The one write exists only when the operator enabled it and gave the server
+# an identity to write as; otherwise clients never even see it.
+if settings.writes_enabled:
+    for _fn in tools.WRITE_TOOLS:
+        mcp.add_tool(
+            audited(_fn),
+            name=_fn.__name__,
+            annotations=ToolAnnotations(
+                read_only_hint=False, destructive_hint=False, idempotent_hint=True
+            ),
+        )
+
 
 # ── HTTP: bearer auth, rate limit, health ─────────────────────────────────────
 
@@ -102,7 +114,7 @@ class BearerAuth(BaseHTTPMiddleware):
         self, request: Request, call_next: Callable[..., Awaitable[Response]]
     ) -> Response:
         """Reject a missing or unknown token (401) or a client over the limit (429)."""
-        if request.url.path == "/health":
+        if request.url.path == "/mcp/health":
             return await call_next(request)
         header = request.headers.get("authorization", "")
         token = header.removeprefix("Bearer ").strip() if header.startswith("Bearer ") else ""
@@ -126,12 +138,14 @@ class BearerAuth(BaseHTTPMiddleware):
 
 def http_app() -> Any:
     """The Starlette app for the HTTP transport, with auth and a health route."""
-    app = mcp.streamable_http_app(host=settings.mcp_host)
+    # Mounted under /mcp: the Funnel forwards the path as-is, so the MCP
+    # endpoint is /mcp and the open health route sits beside it at /mcp/health.
+    app = mcp.streamable_http_app(host=settings.mcp_host, streamable_http_path="/mcp")
 
     async def health(_: Request) -> JSONResponse:
         return JSONResponse({"status": "ok", "version": __version__})
 
-    app.add_route("/health", health, methods=["GET"])
+    app.add_route("/mcp/health", health, methods=["GET"])
     app.add_middleware(BearerAuth)
     return app
 

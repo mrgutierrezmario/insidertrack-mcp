@@ -476,6 +476,32 @@ async def model_desk(history: int = 0) -> dict[str, Any]:
     return envelope(out, as_of=brief.get("date"))
 
 
+# ── watchlist_add (the one write; registered only when the operator enabled it) ──
+
+
+async def watchlist_add(ticker: str) -> dict[str, Any]:
+    """Add a ticker to the site owner's InsiderTrack watchlist.
+
+    The only tool that changes anything. It acts as the owner's own watchlist
+    identity on the site (not an admin), so the worst it can do is add a
+    symbol to that one list. Say which ticker you added.
+
+    Args:
+        ticker: Exact symbol, e.g. NVDA.
+    """
+    from .config import settings
+
+    sym = _ticker(ticker)
+    if sym is None:
+        return client.error("ticker does not look like a symbol", "Try search first")
+    data = await client.post(
+        "/watchlist/", {"email": settings.insidertrack_watchlist_email, "ticker": sym}
+    )
+    if client.is_error(data):
+        return data
+    return envelope({"status": data.get("status", "added"), "ticker": sym})
+
+
 TOOLS = (
     search,
     congress_trades,
@@ -487,3 +513,4 @@ TOOLS = (
     signal_outcomes,
     model_desk,
 )
+WRITE_TOOLS = (watchlist_add,)
