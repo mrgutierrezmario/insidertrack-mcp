@@ -78,7 +78,10 @@ Done (commits `723e0d3`, `b1e6679`, `b14e25c`):
   (fetch-metadata 2→3, a major) merged by hand after reading the notes —
   that's the auto-merge workflow working as designed.
 
-Not done: phase 4 (enable the write, OAuth, whale tools) — optional. Decided
+- **v0.2.0** (2026-09-20): `fund_leaderboard`, `fund_track_record`, funds in
+  `search`; the stateless-transport and `X-API-Key` fixes are now in a tag.
+
+Not done: phase 4 remainder (enable the write, OAuth) — optional. Decided
 2026-09-20 with the owner: **no in-app chat window in InsiderTrack** for now;
 if ever, bring-your-own-key and reuse this repo's `tools.py` as the tool layer.
 

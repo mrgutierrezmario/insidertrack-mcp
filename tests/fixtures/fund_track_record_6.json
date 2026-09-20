@@ -1,0 +1,7 @@
+{"holder_id": 6, "skipped_demo": 1,
+ "buys": {"evaluated": 131,
+   "windows": {"30": {"n": 131, "win_rate": 35.1, "avg_excess": -2.03, "avg_return": -3.58, "beat_spy_rate": 42.0, "median_return": -3.05},
+              "60": {"n": 0, "win_rate": null, "avg_excess": null, "avg_return": null, "beat_spy_rate": null, "median_return": null},
+              "90": {"n": 0, "win_rate": null, "avg_excess": null, "avg_return": null, "beat_spy_rate": null, "median_return": null}},
+   "trades": [{"position_id": 1297, "ticker": "NVDA", "company": "NVIDIA CORPORATION", "change": "increased", "quarter": "2026-Q2", "value_usd": 1418869170, "public_on": "2026-08-14", "entry_date": "2026-08-14", "entry_price": 225.16, "r30": -3.05, "r60": null, "r90": null, "x30": -1.5, "x60": null, "x90": null}]},
+ "sells": {"windows": {"30": {"n": 54, "win_rate": 61.1, "avg_excess": 0.58, "avg_return": -0.97, "beat_spy_rate": 51.9, "median_return": -1.85}}, "trades": []}}

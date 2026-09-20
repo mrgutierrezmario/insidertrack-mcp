@@ -8,7 +8,7 @@ what a ticker scores and why, and whether those signals actually worked.
 
 **By M.G. Network and Technology Solutions.**
 
-> **v0.1.0** — running in production alongside InsiderTrack: nine read tools,
+> **v0.2.0** — running in production alongside InsiderTrack: eleven read tools,
 > two resources, two prompts, token-gated over the public URL. Connected to
 > claude.ai as a custom connector. Design notes in [DESIGN.md](DESIGN.md).
 
@@ -82,7 +82,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"   # make a token
 
 | Tool | Question it answers |
 |---|---|
-| `search` | "Who is Pelosi in this system? What's the exact ticker?" — ids and symbols for the other tools |
+| `search` | "Who is Pelosi in this system? What's the exact ticker? Which fund is Berkshire?" — ids and symbols for the other tools |
 | `congress_trades` | "What did members of Congress do in NVDA since June?" — filter by ticker, member, buy/sell, owner, asset type, dates |
 | `ticker_signal` | "What does KMX score, and why?" — the 0–100 composite, sub-scores and written reasons |
 | `top_signals` | "What scores highest right now?" — the strongest tickers, no reasons |
@@ -91,6 +91,8 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"   # make a token
 | `leaderboard` | "Which members beat the market most often?" — ranked by 90-day beat-SPY rate |
 | `signal_outcomes` | "Does 'Strong Watch' actually go up?" — hit-rates per label per scoring version |
 | `model_desk` | "What did the site's model call this morning, and how have its calls scored?" |
+| `fund_leaderboard` | "Which 13F funds' position changes actually beat the market?" — measured from the filing's public date, not quarter end |
+| `fund_track_record` | "How did Renaissance's new and increased positions do?" — 30/60/90-day returns vs SPY, buys and sales |
 
 All read-only and idempotent (declared as such in the tool annotations),
 each capped to a sensible number of rows, dollars pre-formatted, no internal

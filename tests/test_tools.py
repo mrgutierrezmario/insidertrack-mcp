@@ -196,3 +196,46 @@ async def test_every_tool_has_disclaimer_and_as_of(upstream):
     for result in (await tools.top_signals(), await tools.ticker_signal("KMX")):
         assert result["disclaimer"].endswith("not investment advice.")
         assert result["as_of"]
+
+
+# ── funds ─────────────────────────────────────────────────────────────────────
+
+
+async def test_fund_leaderboard_ranks_measured_funds_only(upstream):
+    ok(upstream, "/whales/leaderboard", "fund_leaderboard")
+    result = await tools.fund_leaderboard()
+    assert [r["fund"]["name"] for r in result["ranked"]] == [
+        "Renaissance Technologies",
+        "Warren Buffett / Berkshire Hathaway",
+    ]
+    assert result["ranked"][0] == {
+        "rank": 1,
+        "fund": {"id": 6, "name": "Renaissance Technologies"},
+        "window_days": 30,
+        "changes_measured": 131,
+        "beat_spy_rate_pct": 42.0,
+        "avg_excess_vs_spy_pct": -2.03,
+    }
+    assert result["not_yet_measured"] == [
+        {"id": 4, "name": "Michael Burry / Scion Asset Management"}
+    ]
+
+
+async def test_fund_track_record_shapes_changes(upstream):
+    ok(upstream, "/whales/6/track-record", "fund_track_record_6")
+    result = await tools.fund_track_record(6, recent_changes=5)
+    assert result["buys"]["measured"] == 131
+    assert result["buys"]["windows"]["30d"]["beat_spy_rate_pct"] == 42.0
+    assert result["buys"]["windows"]["60d"]["n"] == 0
+    change = result["buys"]["recent"][0]
+    assert change["ticker"] == "NVDA" and change["change"] == "increased"
+    assert change["position_value"] == "$1.4B" and change["public_on"] == "2026-08-14"
+    assert result["sales"]["windows"]["30d"]["n"] == 54 and result["sales"]["recent"] == []
+
+
+async def test_search_also_matches_funds(upstream):
+    ok(upstream, "/search/", "search_pelosi")
+    ok(upstream, "/whales/", "whales")
+    result = await tools.search("berkshire")
+    assert result["funds"] == [{"id": 1, "name": "Warren Buffett / Berkshire Hathaway"}]
+    assert result["politicians"][0]["name"] == "Nancy Pelosi"

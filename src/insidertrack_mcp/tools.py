@@ -44,11 +44,11 @@ def _politician(p: dict[str, Any] | None) -> dict[str, Any] | None:
 
 
 async def search(query: str) -> dict[str, Any]:
-    """Find members of Congress, tickers and Federal Reserve officials by name or symbol.
+    """Find members of Congress, tickers, 13F funds and Fed officials by name or symbol.
 
-    Use this first when you have a person's name or part of a ticker and need
-    the politician id or exact symbol that the other tools take. Matching is
-    case-insensitive and partial ("pelosi", "NVD").
+    Use this first when you have a name or part of a ticker and need the
+    politician id, fund id or exact symbol that the other tools take.
+    Matching is case-insensitive and partial ("pelosi", "NVD", "berkshire").
 
     Args:
         query: A name or ticker fragment, 1-80 characters.
@@ -59,8 +59,20 @@ async def search(query: str) -> dict[str, Any]:
     data = await client.get("/search/", {"q": query})
     if client.is_error(data):
         return data
+    # The site's search does not cover 13F funds; match their names here.
+    funds = await client.get("/whales/")
+    fund_hits = (
+        [
+            {"id": f.get("id"), "name": f.get("name")}
+            for f in funds
+            if query.lower() in (f.get("name") or "").lower()
+        ]
+        if isinstance(funds, list)
+        else []
+    )
     return envelope(
         {
+            "funds": cap_rows(fund_hits),
             "politicians": [
                 {**_politician(p), "tracked": p.get("is_tracked")}
                 for p in cap_rows(data.get("politicians", []))
@@ -476,6 +488,97 @@ async def model_desk(history: int = 0) -> dict[str, Any]:
     return envelope(out, as_of=brief.get("date"))
 
 
+# ── funds: fund_leaderboard, fund_track_record ────────────────────────────────
+
+
+async def fund_leaderboard() -> dict[str, Any]:
+    """Institutional investors (13F filers) ranked by how their position changes performed vs SPY.
+
+    Each fund's new and increased positions are measured from the day the
+    13F became public (up to 45 days after quarter end — the date that
+    matters, not the quarter end) at 30/60/90 days against SPY. `window` is
+    the longest horizon with data; a fund needs two loaded quarters to be
+    measured at all, so early on only a few are ranked and the rest show
+    `measured: false`. Use `fund_track_record` for the detail.
+    """
+    data = await client.get("/whales/leaderboard")
+    if client.is_error(data):
+        return data
+    rows = data.get("items", [])
+    ranked = [r for r in rows if r.get("computed") and r.get("window")]
+    return envelope(
+        {
+            "ranked": [
+                {
+                    "rank": i + 1,
+                    "fund": {"id": r.get("id"), "name": r.get("name")},
+                    "window_days": r.get("window"),
+                    "changes_measured": r.get("n"),
+                    "beat_spy_rate_pct": r.get("beat_spy_rate"),
+                    "avg_excess_vs_spy_pct": r.get("avg_excess"),
+                }
+                for i, r in enumerate(cap_rows(ranked))
+            ],
+            "not_yet_measured": [
+                {"id": r.get("id"), "name": r.get("name")}
+                for r in rows
+                if not (r.get("computed") and r.get("window"))
+            ],
+        }
+    )
+
+
+def _fund_change(t: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "ticker": t.get("ticker"),
+        "company": t.get("company"),
+        "change": t.get("change"),
+        "quarter": t.get("quarter"),
+        "position_value": dollars(t.get("value_usd")),
+        "public_on": t.get("public_on"),
+        "entry_price": t.get("entry_price"),
+        "return_pct": {"30d": t.get("r30"), "60d": t.get("r60"), "90d": t.get("r90")},
+        "excess_vs_spy_pct": {"30d": t.get("x30"), "60d": t.get("x60"), "90d": t.get("x90")},
+    }
+
+
+async def fund_track_record(holder_id: int, recent_changes: int = 10) -> dict[str, Any]:
+    """How one institutional investor's 13F position changes performed vs SPY.
+
+    "Buys" are new and increased positions, "sales" trims and exits
+    (measured in the inverted sense: a good sale is one the stock then
+    fell). Every change is measured from the 13F's public date — a quarter-
+    end snapshot the fund filed up to 45 days later — so this is what a
+    person copying the filing could have done, not what the fund did.
+    Windows with `n` 0 simply have no resolved data yet.
+
+    Args:
+        holder_id: From `fund_leaderboard` or `search`.
+        recent_changes: Measured changes to list, 0-50 (default 10).
+    """
+    record = await client.get(f"/whales/{holder_id}/track-record")
+    if client.is_error(record):
+        return record
+    n = max(0, min(recent_changes, 50))
+    buys, sells = record.get("buys") or {}, record.get("sells") or {}
+    buy_rows = cap_rows(buys.get("trades", []), n) if n else []
+    sell_rows = cap_rows(sells.get("trades", []), n) if n else []
+    return envelope(
+        {
+            "fund_id": holder_id,
+            "buys": {
+                "measured": buys.get("evaluated"),
+                "windows": _windows(buys.get("windows")),
+                "recent": [_fund_change(t) for t in buy_rows],
+            },
+            "sales": {
+                "windows": _windows(sells.get("windows")),
+                "recent": [_fund_change(t) for t in sell_rows],
+            },
+        }
+    )
+
+
 # ── watchlist_add (the one write; registered only when the operator enabled it) ──
 
 
@@ -512,5 +615,7 @@ TOOLS = (
     leaderboard,
     signal_outcomes,
     model_desk,
+    fund_leaderboard,
+    fund_track_record,
 )
 WRITE_TOOLS = (watchlist_add,)

@@ -3,7 +3,13 @@
 All notable changes to InsiderTrack MCP. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions: [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.2.0] — 2026-09-20
+
+### Added
+- `fund_leaderboard` and `fund_track_record`: 13F institutional investors ranked and measured
+  the same way as members — from the filing's public date at 30/60/90 days vs SPY. Funds without
+  two loaded quarters are listed as not yet measured (most join after the Q3 sync, November 2026).
+- `search` also matches 13F fund names, so fund ids are findable.
 
 ### Fixed
 - HTTP transport is stateless: a server restart or a client that drops its session id no longer
@@ -32,4 +38,5 @@ First release: in production next to InsiderTrack, connected to claude.ai.
 - Docker image, Compose snippet for the InsiderTrack stack, CI (ruff, pytest, image build +
   smoke), Dependabot with auto-merge for patch/minor bumps.
 
+[0.2.0]: https://github.com/mrgutierrezmario/insidertrack-mcp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/mrgutierrezmario/insidertrack-mcp/releases/tag/v0.1.0

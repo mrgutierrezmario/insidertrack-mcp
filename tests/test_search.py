@@ -8,6 +8,7 @@ from insidertrack_mcp import server, tools
 
 async def test_search_returns_politicians_with_ids(upstream):
     upstream.get("/search/").mock(return_value=httpx.Response(200, json=fixture("search_pelosi")))
+    upstream.get("/whales/").mock(return_value=httpx.Response(200, json=[]))
     result = await tools.search("pelosi")
     assert result["politicians"] == [
         {
@@ -19,9 +20,9 @@ async def test_search_returns_politicians_with_ids(upstream):
             "tracked": True,
         }
     ]
-    assert result["tickers"] == []
+    assert result["tickers"] == [] and result["funds"] == []
     assert "disclaimer" in result and "as_of" in result
-    assert upstream.calls.last.request.url.params["q"] == "pelosi"
+    assert upstream.calls[0].request.url.params["q"] == "pelosi"
 
 
 async def test_search_rejects_empty_query(upstream):
