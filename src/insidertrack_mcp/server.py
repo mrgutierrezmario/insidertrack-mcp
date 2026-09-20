@@ -196,7 +196,12 @@ def http_app() -> Any:
     # Tailscale serve strips its mount path, so behind the Funnel's "/mcp"
     # handler requests arrive at "/"; MCP_PATH can move it when a proxy keeps
     # the prefix. The open health route sits beside it at <path>/health.
-    app = mcp.streamable_http_app(host=settings.mcp_host, streamable_http_path=settings.mcp_path)
+    # Stateless: every request stands alone, so a container restart or a
+    # client that forgets its session id never produces "Missing session ID".
+    # Nothing here needs per-session state — every tool is a read.
+    app = mcp.streamable_http_app(
+        host=settings.mcp_host, streamable_http_path=settings.mcp_path, stateless_http=True
+    )
 
     async def health(_: Request) -> JSONResponse:
         return JSONResponse({"status": "ok", "version": __version__})

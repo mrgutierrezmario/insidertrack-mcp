@@ -3,6 +3,12 @@
 All notable changes to InsiderTrack MCP. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions: [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- HTTP transport is stateless: a server restart or a client that drops its session id no longer
+  fails every later call with "Missing session ID".
+
 ## [0.1.0] — 2026-09-20
 
 First release: in production next to InsiderTrack, connected to claude.ai.
