@@ -125,6 +125,14 @@ class BearerAuth(BaseHTTPMiddleware):
         token = header.removeprefix("Bearer ").strip() if header.startswith("Bearer ") else ""
         name = settings.tokens.get(token)
         if not name:
+            # Enough to debug a misconfigured client, never the secret itself.
+            audit.warning(
+                "unauthorized: auth_header=%s bearer_prefix=%s token_len=%d known_tokens=%d",
+                "present" if header else "missing",
+                header.startswith("Bearer "),
+                len(token),
+                len(settings.tokens),
+            )
             return JSONResponse(
                 {"error": "unauthorized"},
                 status_code=401,
