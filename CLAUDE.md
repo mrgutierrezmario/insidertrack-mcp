@@ -89,7 +89,8 @@ token and refuses without one, from Claude Desktop and claude.ai.
    the app's admin credential is a password, and its token is an
    **hourly HMAC** of that password (cookie or `X-Admin-Token`), so a static
    env token cannot work and must not be attempted. Remove that line. The
-   one planned write (`watchlist_add`) does not need admin either — see §6.
+   one planned write (`watchlist_add`) uses the owner's watchlist token
+   instead — see §6a.
 4. **Deploying without hurting the app.** The stack is (re)started from
    the dev container with `deploy/start.sh` in the app repo, which needs
    `DOCKER_CONFIG` pointing at a dir holding an empty `{}` `config.json`
@@ -131,7 +132,7 @@ token and refuses without one, from Claude Desktop and claude.ai.
   `GET /whales/{id}/track-record` and `fund_leaderboard` from
   `GET /whales/leaderboard`. See §5 for shapes. Also `whales` from
   `GET /whales/` for ids, or extend `search`.
-- `insider_transactions`, `watchlist_add` (see §6), OAuth.
+- `insider_transactions`, `watchlist_add` (design decided — §6a), OAuth.
 
 ## 5. The app's API — facts verified against the live instance
 
@@ -197,12 +198,44 @@ rule here is stronger: do not implement a tool for them at all.
 - `POST /trades/sync`, `/trades/backfill`, `/trades/{id}/reread`,
   `DELETE /trades/{id}`, `POST /whales/sync`, `POST /insiders/sync`,
   `POST /alerts/run`, anything under `/settings`, `/config`, `/access/admin`.
-- `POST /watchlist/` **as designed in DESIGN.md is wrong**: the watchlist
-  is keyed by e-mail with a per-e-mail bearer token that the app mints on
-  first add and returns once. There is no admin path to it. If
-  `watchlist_add` is ever built, it needs the *user's* watchlist token
-  (env `INSIDERTRACK_WATCHLIST_EMAIL` / `_TOKEN`), not an admin token, and
-  stays off by default. Update DESIGN.md §2/§3 accordingly.
+- `POST /watchlist/` with an **admin** credential — there is no such path.
+  The watchlist is keyed by e-mail with a per-e-mail bearer token. The
+  decided design for the one write is in §6a.
+
+### 6a. `watchlist_add` — decided design (owner's decision, 2026-09-20)
+
+The MCP carries the **owner's own watchlist credentials**; nothing admin.
+
+- How the app works: the first `POST /watchlist/` `{email, ticker}` for a
+  new e-mail mints a bearer token and returns it **once** as `token`;
+  every later call sends `Authorization: Bearer <token>` with the same
+  `{email, ticker}` body. Responses: added / already watching. There is
+  one token per e-mail; the site's **recover** flow (Settings → e-mails
+  a new token) *replaces* it.
+- Config, in the app's `deploy/.env` (never in git):
+  ```
+  MCP_ALLOW_WRITES=1                    # default 0 = the tool is not even registered
+  INSIDERTRACK_WATCHLIST_EMAIL=<owner's watchlist e-mail>
+  INSIDERTRACK_WATCHLIST_TOKEN=<that e-mail's token>
+  ```
+  The token is the value the owner's browser already holds —
+  `localStorage["insidertrack_watchlist_token"]` on the site — or a fresh
+  one from the recover flow. If recover is ever run again, update `.env`.
+- Compose snippet: **remove** `INSIDERTRACK_ADMIN_TOKEN: ${ADMIN_TOKEN:-}`
+  and pass the two variables above (`${INSIDERTRACK_WATCHLIST_EMAIL:-}`,
+  `${INSIDERTRACK_WATCHLIST_TOKEN:-}`).
+- Tool: `watchlist_add(ticker)` → `POST /watchlist/` with the bearer and
+  `{email: <env>, ticker}`; return `{"status": "added"|"already_watching",
+  "ticker"}`; on 401 return `{"error": "watchlist token rejected",
+  "hint": "token was replaced by a recover — update INSIDERTRACK_WATCHLIST_TOKEN"}`.
+  Registered only when `MCP_ALLOW_WRITES=1` **and** both variables are set;
+  otherwise the server stays read-only by construction. Audit-log it like
+  every other call. Never log the token.
+- Blast radius if the MCP token leaks: someone can add tickers to the
+  owner's watchlist. Acceptable; that is why the write is this one.
+- Not doing: one watchlist per MCP client (only matters with a second
+  user), any admin-side "add to any watchlist" endpoint (would put the
+  admin password in the MCP).
 
 ## 7. Asks of the app (do not make these changes here; list them)
 

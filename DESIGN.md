@@ -29,7 +29,7 @@ same Tailscale Funnel URL under `/mcp`.
 | Language | Python 3.12, official `mcp` SDK 2.x (`MCPServer`), `httpx` | Same language as the app; the SDK's decorators turn a typed function into a tool with a schema |
 | Transport | **Streamable HTTP** at `/mcp`, plus **stdio** for local use | HTTP is what claude.ai custom connectors and Claude Desktop remote servers speak; stdio is free with the SDK and handy for Claude Code on the same machine |
 | Auth (client → MCP) | Bearer token, one per client, in `deploy/.env` | The Funnel URL is public; the server must not be. OAuth is the spec's preferred path — v2 if a second user ever needs access |
-| Auth (MCP → app) | None needed for reads; the app's admin token only for `watchlist_add` | InsiderTrack's read endpoints are public behind the site-access agreement; the MCP container calls the app on the Docker network (`http://tailscale:8003` — the app shares the Tailscale container's network namespace), never through the Funnel |
+| Auth (MCP → app) | None needed for reads; the owner's own watchlist bearer token (e-mail-keyed, minted by the app) for `watchlist_add` — never the admin credential, which is an hourly HMAC of the admin password and has no static form (decided 2026-09-20; see CLAUDE.md §6a) | InsiderTrack's read endpoints are public behind the site-access agreement; the MCP container calls the app on the Docker network (`http://tailscale:8003` — the app shares the Tailscale container's network namespace), never through the Funnel |
 | Writes | **One** tool (`watchlist_add`), off by default (`MCP_ALLOW_WRITES=0`) | Everything valuable is a question. One write proves the pattern without making the server dangerous |
 | Result size | Hard caps per tool (rows, characters); dates and dollars pre-formatted | Tool output is context; 500 raw rows help nobody. The model asks again with a narrower filter |
 | Disclaimer | In every tool description and in the server instructions | It is a scorecard, not advice — same line the app uses |
@@ -53,7 +53,7 @@ recover.
 | `leaderboard` | `min_trades` (default 10), `limit` ≤ 50 | members ranked by 90-day beat-SPY rate | `GET /politicians/leaderboard` |
 | `signal_outcomes` | `score_version?`, `window_days?` | hit-rate per label at 30/60/90 d, n per cell — "does Strong Watch go up?" | `GET /outcomes/stats` |
 | `model_desk` | `date?` (default today), `include_history` | the morning brief and 3–5 calls with direction, horizon, confidence, reasoning; resolved calls with hit/miss and excess vs SPY | `GET /ai-desk/today`, `/ai-desk/calls` |
-| `watchlist_add` *(writes on)* | `ticker` | ok / already there | `POST /watchlist/` with admin token |
+| `watchlist_add` *(writes on)* | `ticker` | added / already watching | `POST /watchlist/` `{email, ticker}` with the owner's watchlist bearer token from env |
 
 That is ten reads and one write; the first cut ships the **eight in bold
 below** and adds the rest once they are used:
@@ -112,7 +112,8 @@ Config (`deploy/.env`):
 INSIDERTRACK_URL=http://tailscale:8003
 MCP_TOKENS=claude-desktop:<random>,claude-code:<random>
 MCP_ALLOW_WRITES=0
-INSIDERTRACK_ADMIN_TOKEN=            # only if writes are on
+INSIDERTRACK_WATCHLIST_EMAIL=        # only if writes are on: the owner's watchlist e-mail
+INSIDERTRACK_WATCHLIST_TOKEN=        # …and that e-mail's bearer token (from the site's localStorage or the recover e-mail)
 ```
 
 ## 6. Repository layout
