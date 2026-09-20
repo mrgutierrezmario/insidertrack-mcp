@@ -1,0 +1,52 @@
+[project]
+name = "insidertrack-mcp"
+dynamic = ["version"]
+description = "MCP server for InsiderTrack: ask an AI assistant who in Congress and which insiders are buying, what a ticker scores, and whether those signals worked."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "LicenseRef-PolyForm-Noncommercial-1.0.0"
+authors = [{ name = "M.G. Network and Technology Solutions" }]
+dependencies = [
+    "mcp==2.2.0",
+    "httpx==0.28.1",
+    "pydantic-settings==2.15.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "respx==0.23.1",
+    "ruff==0.16.8",
+]
+
+[project.scripts]
+insidertrack-mcp = "insidertrack_mcp.server:main"
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "D1", "B", "UP", "SIM", "C4"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D103"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

@@ -7,7 +7,7 @@ instance: who in Congress is buying what, which insiders are clustering,
 what a ticker scores and why, and whether those signals have actually
 worked.
 
-Status: **design** (2026-09-20). Nothing built yet.
+Status: **phase 0 done** (2026-09-20) — scaffold, `search` tool, CI, Docker image; verified against the live instance.
 
 ## 1. What it is, in one paragraph
 
@@ -26,10 +26,10 @@ same Tailscale Funnel URL under `/mcp`.
 |---|---|---|
 | Data access | **InsiderTrack's HTTP API**, not the database | Scores, track records and clusters are computed in the app (with caching and price-API fan-out); reading tables directly would mean duplicating that logic and drifting from the site. The API is the contract |
 | Repo | **Separate** (`insidertrack-mcp`), own CI, own releases | Reads as a third project; the app stays unaware of it; versions independently |
-| Language | Python 3.12, official `mcp` SDK (FastMCP), `httpx` | Same language as the app; the SDK's decorators turn a typed function into a tool with a schema |
-| Transport | **Streamable HTTP** at `/mcp`, plus **stdio** for local use | HTTP is what claude.ai custom connectors and Claude Desktop remote servers speak; stdio is free with FastMCP and handy for Claude Code on the same machine |
+| Language | Python 3.12, official `mcp` SDK 2.x (`MCPServer`), `httpx` | Same language as the app; the SDK's decorators turn a typed function into a tool with a schema |
+| Transport | **Streamable HTTP** at `/mcp`, plus **stdio** for local use | HTTP is what claude.ai custom connectors and Claude Desktop remote servers speak; stdio is free with the SDK and handy for Claude Code on the same machine |
 | Auth (client → MCP) | Bearer token, one per client, in `deploy/.env` | The Funnel URL is public; the server must not be. OAuth is the spec's preferred path — v2 if a second user ever needs access |
-| Auth (MCP → app) | None needed for reads; the app's admin token only for `watchlist_add` | InsiderTrack's read endpoints are public behind the site-access agreement; the MCP container calls the app on the Docker network (`http://app:8003`), never through the Funnel |
+| Auth (MCP → app) | None needed for reads; the app's admin token only for `watchlist_add` | InsiderTrack's read endpoints are public behind the site-access agreement; the MCP container calls the app on the Docker network (`http://tailscale:8003` — the app shares the Tailscale container's network namespace), never through the Funnel |
 | Writes | **One** tool (`watchlist_add`), off by default (`MCP_ALLOW_WRITES=0`) | Everything valuable is a question. One write proves the pattern without making the server dangerous |
 | Result size | Hard caps per tool (rows, characters); dates and dollars pre-formatted | Tool output is context; 500 raw rows help nobody. The model asks again with a narrower filter |
 | Disclaimer | In every tool description and in the server instructions | It is a scorecard, not advice — same line the app uses |
@@ -88,7 +88,7 @@ leaderboard, signal_outcomes, model_desk.**
   rows returned, duration — to stdout (Docker collects it) and never the
   token itself.
 - The container has no database credentials and no volume; it can only
-  reach `app:8003`.
+  reach the app on the stack network.
 
 ## 5. Deployment
 
@@ -109,7 +109,7 @@ Claude Code with no network at all.
 Config (`deploy/.env`):
 
 ```
-INSIDERTRACK_URL=http://app:8003
+INSIDERTRACK_URL=http://tailscale:8003
 MCP_TOKENS=claude-desktop:<random>,claude-code:<random>
 MCP_ALLOW_WRITES=0
 INSIDERTRACK_ADMIN_TOKEN=            # only if writes are on
@@ -153,9 +153,12 @@ insidertrack-mcp/
 1. **Funnel path vs second Funnel port.** One `/mcp` path on the existing
    URL is cleanest; Tailscale serve supports path-based routing. Verify on
    the Mac before phase 2.
-2. **Site-access gate.** InsiderTrack records an agreement per IP; calls
-   from the `mcp` container arrive from the Docker network. Confirm the
-   read endpoints don't gate on it (they appear not to).
+2. ~~Site-access gate~~ — confirmed 2026-09-20: read endpoints answer from
+   the Docker network without it. Two things learned: the app shares the
+   Tailscale container's network namespace, so its in-stack hostname is
+   `tailscale:8003`, not `app`; and API paths end with a slash
+   (`/search/`) — without it FastAPI's SPA fallback returns the web page
+   with 200, which the client now detects.
 3. **Ticker validation.** Is there a cheap "known tickers" endpoint, or is
    `search` enough? Affects the error hint in `ticker_signal`.
 4. **Signals payload size.** `GET /signals/` returns every tracked ticker;

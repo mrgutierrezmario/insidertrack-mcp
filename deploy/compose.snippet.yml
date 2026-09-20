@@ -1,0 +1,20 @@
+# Add this service to InsiderTrack's deploy/compose.yml. It joins the stack's
+# network, reaches the app at http://tailscale:8003 (the app shares the
+# Tailscale container's network namespace), and publishes nothing itself —
+# the Funnel forwards /mcp to it (see deploy/OPERATIONS.md).
+services:
+  mcp:
+    image: insidertrack-mcp:latest
+    build:
+      context: ../../insidertrack-mcp
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    environment:
+      INSIDERTRACK_URL: http://tailscale:8003
+      MCP_TOKENS: ${MCP_TOKENS:?set MCP_TOKENS in deploy/.env}
+      MCP_ALLOW_WRITES: ${MCP_ALLOW_WRITES:-0}
+      INSIDERTRACK_ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+    depends_on: [app]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }

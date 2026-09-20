@@ -1,0 +1,59 @@
+"""Settings, read from the environment (or a ``.env`` file next to the process).
+
+Everything the server needs to know is here: where InsiderTrack is, which
+bearer tokens are accepted, whether the one write tool is enabled, and the
+caps that keep tool output a sensible size.
+"""
+
+from __future__ import annotations
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Environment-driven configuration; see ``deploy/.env.example``."""
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    insidertrack_url: str = Field(
+        default="http://localhost:8013",
+        description="Base URL of the InsiderTrack API (inside the Compose stack: http://app:8003).",
+    )
+    insidertrack_admin_token: str = Field(
+        default="",
+        description="InsiderTrack admin token; only needed when MCP_ALLOW_WRITES=1.",
+    )
+    mcp_transport: str = Field(
+        default="stdio",
+        description=(
+            "stdio for a local client subprocess; streamable-http to serve over the network."
+        ),
+    )
+    mcp_host: str = "0.0.0.0"
+    mcp_port: int = 8100
+    mcp_tokens: str = Field(
+        default="",
+        description=(
+            "Comma-separated name:token pairs accepted over HTTP, e.g. "
+            "'claude-desktop:abc,claude-code:def'. Ignored over stdio."
+        ),
+    )
+    mcp_allow_writes: bool = Field(default=False, description="Enable the watchlist_add tool.")
+    upstream_timeout_seconds: float = 10.0
+    rate_limit_per_minute: int = 60
+    max_rows: int = 100
+    max_text_chars: int = 4000
+
+    @property
+    def tokens(self) -> dict[str, str]:
+        """Accepted bearer tokens mapped to the client name they belong to."""
+        out: dict[str, str] = {}
+        for pair in self.mcp_tokens.split(","):
+            name, _, token = pair.strip().partition(":")
+            if name and token:
+                out[token] = name
+        return out
+
+
+settings = Settings()

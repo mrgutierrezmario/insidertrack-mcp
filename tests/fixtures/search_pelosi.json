@@ -1,0 +1,7 @@
+{
+  "politicians": [
+    {"id": 12, "name": "Nancy Pelosi", "party": "D", "state": "CA", "chamber": "house", "is_tracked": true}
+  ],
+  "tickers": [],
+  "fed_officials": []
+}
