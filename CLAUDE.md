@@ -67,7 +67,15 @@ Done (commits `723e0d3`, `b1e6679`, `b14e25c`):
   *No sign-in* + request header `X-API-Key` (claude.ai reserves
   `Authorization` for its own OAuth — verified from the 401 diagnostics).
 
-Not done: phase 4 (enable the write, OAuth, whale tools) — optional.
+- Repo **public** since 2026-09-20: branch protection (Lint + tests, Docker
+  build required; no force-push), auto-merge, secret scanning + push
+  protection, Dependabot security updates, CodeQL default setup, topics.
+- HTTP transport is **stateless** (a container rebuild had broken claude.ai's
+  session: "Missing session ID").
+
+Not done: phase 4 (enable the write, OAuth, whale tools) — optional. Decided
+2026-09-20 with the owner: **no in-app chat window in InsiderTrack** for now;
+if ever, bring-your-own-key and reuse this repo's `tools.py` as the tool layer.
 
 ## 4. What to do next, in order, and why
 
