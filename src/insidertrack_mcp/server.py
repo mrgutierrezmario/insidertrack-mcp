@@ -102,6 +102,24 @@ if settings.writes_enabled:
 # ── HTTP: bearer auth, rate limit, health ─────────────────────────────────────
 
 
+def _presented_token(request: Request) -> str:
+    """The token a client sent: ``Authorization: Bearer <t>`` (any case) or ``X-API-Key: <t>``.
+
+    Some clients reserve the Authorization header for their own OAuth flow, so
+    the custom header is the reliable path. A ``name:token`` value — the form
+    used in ``MCP_TOKENS`` — is accepted too, since people copy it that way.
+    """
+    header = request.headers.get("authorization", "")
+    token = header[7:].strip() if header[:7].lower() == "bearer " else ""
+    if not token:
+        token = request.headers.get("x-api-key", "").strip()
+    if token and token not in settings.tokens and ":" in token:
+        name, _, rest = token.partition(":")
+        if settings.tokens.get(rest) == name:
+            token = rest
+    return token
+
+
 def health_path() -> str:
     """``/health`` under the configured mount path."""
     return settings.mcp_path.rstrip("/") + "/health"
@@ -121,15 +139,15 @@ class BearerAuth(BaseHTTPMiddleware):
         """Reject a missing or unknown token (401) or a client over the limit (429)."""
         if request.url.path == health_path():
             return await call_next(request)
-        header = request.headers.get("authorization", "")
-        token = header.removeprefix("Bearer ").strip() if header.startswith("Bearer ") else ""
+        token = _presented_token(request)
         name = settings.tokens.get(token)
         if not name:
+            header = request.headers.get("authorization", "")
             # Enough to debug a misconfigured client, never the secret itself.
             audit.warning(
-                "unauthorized: auth_header=%s bearer_prefix=%s token_len=%d known_tokens=%d",
+                "unauthorized: auth_header=%s x_api_key=%s token_len=%d known_tokens=%d",
                 "present" if header else "missing",
-                header.startswith("Bearer "),
+                "present" if request.headers.get("x-api-key") else "missing",
                 len(token),
                 len(settings.tokens),
             )

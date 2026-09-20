@@ -38,7 +38,9 @@ Over HTTP, inside the InsiderTrack Compose stack: add the service from
 [`deploy/compose.snippet.yml`](deploy/compose.snippet.yml) to its
 `deploy/compose.yml`, put an `MCP_TOKENS=name:token` line in its
 `deploy/.env`, and forward `/mcp` on the Funnel. Clients connect to
-`https://<your-funnel-host>/mcp` with `Authorization: Bearer <token>`.
+`https://<your-funnel-host>/mcp` with `Authorization: Bearer <token>` — or, for
+clients that reserve the Authorization header for their own OAuth (claude.ai
+custom connectors do), a request header `X-API-Key: <token>`.
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"   # make a token
