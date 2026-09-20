@@ -14,7 +14,7 @@ file is newer — fix DESIGN.md.
 
 ## 1. The two projects, and the line between them
 
-| | InsiderTrack (`../stock-tracker`) | InsiderTrack MCP (this repo) |
+| | InsiderTrack (`../insidertrack`, folder renamed 2026-09-20) | InsiderTrack MCP (this repo) |
 |---|---|---|
 | What | The site: scrapers, scores, track records, AI Desk, alerts, UI | A server that lets Claude ask the site questions |
 | Direction of AI | The **site calls a model** (Gemini today; Ollama wired in, unconfigured) for three jobs: reading scanned paper filings, the daily AI Desk brief, on-demand research notes | **Claude calls the site.** No model runs here. This server never needs, holds or spends the site's AI key |
