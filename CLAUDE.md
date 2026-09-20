@@ -60,8 +60,12 @@ Done (commits `723e0d3`, `b1e6679`, `b14e25c`):
   reloaded serve.json in place). `watchlist_add` is written and tested but
   not enabled (`MCP_ALLOW_WRITES=0`).
 
-Not done: phase 3 (resources, prompts, README transcript, v0.1.0), phase 4
-(enable the write, OAuth, whale tools).
+- Phase 3 — resources, prompts, README transcript (recorded live), **v0.1.0**
+  released 2026-09-20. claude.ai custom connector works with Authentication
+  *No sign-in* + request header `X-API-Key` (claude.ai reserves
+  `Authorization` for its own OAuth — verified from the 401 diagnostics).
+
+Not done: phase 4 (enable the write, OAuth, whale tools) — optional.
 
 ## 4. What to do next, in order, and why
 

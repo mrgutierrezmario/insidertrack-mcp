@@ -3,9 +3,15 @@
 All notable changes to InsiderTrack MCP. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions: [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.0] — 2026-09-20
+
+First release: in production next to InsiderTrack, connected to claude.ai.
 
 ### Added
+- Resources `insidertrack://brief/today` and `insidertrack://sources/health`; prompts
+  `morning_brief` and `due_diligence(ticker)`.
+- `X-API-Key` accepted alongside `Authorization: Bearer` (claude.ai custom connectors reserve the
+  Authorization header); case-insensitive `Bearer`; `name:token` form forgiven.
 - Project scaffold: MCP server (`mcp` SDK 2.x) with stdio and streamable-HTTP transports,
   bearer-token auth, per-client rate limit, audit log, `/health`.
 - Nine read-only tools: `search`, `congress_trades`, `ticker_signal`, `top_signals`, `cluster_buys`,
@@ -19,3 +25,5 @@ versions: [Semantic Versioning](https://semver.org/).
   so publicly the server is `/mcp` and `/mcp/health` while it sees `/` and `/health`.
 - Docker image, Compose snippet for the InsiderTrack stack, CI (ruff, pytest, image build +
   smoke), Dependabot with auto-merge for patch/minor bumps.
+
+[0.1.0]: https://github.com/mrgutierrezmario/insidertrack-mcp/releases/tag/v0.1.0

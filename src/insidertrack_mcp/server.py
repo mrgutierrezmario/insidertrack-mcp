@@ -24,7 +24,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from . import tools
+from . import extras, tools
 from .config import settings
 from .version import __version__
 
@@ -97,6 +97,30 @@ if settings.writes_enabled:
                 read_only_hint=False, destructive_hint=False, idempotent_hint=True
             ),
         )
+
+
+# ── Resources and prompts ─────────────────────────────────────────────────────
+
+mcp.resource(
+    "insidertrack://brief/today",
+    name="Today's Model Desk brief",
+    description="The site's own model's morning brief and its calls for today, as text.",
+    mime_type="text/plain",
+)(extras.brief_today)
+mcp.resource(
+    "insidertrack://sources/health",
+    name="Data source health",
+    description="How fresh each data source is (Senate, House, Form 4, 13F…) and recent errors.",
+    mime_type="text/plain",
+)(extras.sources_health)
+mcp.prompt(
+    name="morning_brief",
+    description="What changed this week: cluster buys, Congress buys, top scores, model calls.",
+)(extras.morning_brief)
+mcp.prompt(
+    name="due_diligence",
+    description="A one-page note on one ticker: score and reasons, insiders, Congress, outcomes.",
+)(extras.due_diligence)
 
 
 # ── HTTP: bearer auth, rate limit, health ─────────────────────────────────────

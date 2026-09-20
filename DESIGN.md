@@ -7,7 +7,7 @@ instance: who in Congress is buying what, which insiders are clustering,
 what a ticker scores and why, and whether those signals have actually
 worked.
 
-Status: **phase 2 done** (2026-09-20) — live at `/mcp` on the InsiderTrack Funnel URL: token-gated (401 without), rate-limited (429 verified), nine tools answering over the internet. Next: phase 3 (resources, prompts, README transcript, v0.1.0).
+Status: **v0.1.0 released** (2026-09-20) — live at `/mcp` on the InsiderTrack Funnel URL, token-gated, rate-limited, nine tools + two resources + two prompts; connected to claude.ai as a custom connector. Phase 4 items remain optional.
 
 ## 1. What it is, in one paragraph
 
