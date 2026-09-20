@@ -1,0 +1,80 @@
+{
+ "min_trades": 10,
+ "as_of": "2026-09-20",
+ "ranked": [
+  {
+   "rank": 1,
+   "id": 31,
+   "name": "Ed Case",
+   "party": "D",
+   "chamber": "house",
+   "state": "HI",
+   "buys_measured": 10,
+   "beat_spy_rate": 90.0,
+   "skill_factor": 1.4,
+   "as_of": "2026-09-20"
+  },
+  {
+   "rank": 2,
+   "id": 15,
+   "name": "David H McCormick",
+   "party": "",
+   "chamber": "senate",
+   "state": "",
+   "buys_measured": 22,
+   "beat_spy_rate": 81.8,
+   "skill_factor": 1.32,
+   "as_of": "2026-09-20"
+  },
+  {
+   "rank": 3,
+   "id": 84,
+   "name": "A. Mitchell McConnell, Jr.",
+   "party": "",
+   "chamber": "senate",
+   "state": "",
+   "buys_measured": 21,
+   "beat_spy_rate": 81.0,
+   "skill_factor": 1.31,
+   "as_of": "2026-09-20"
+  }
+ ],
+ "unranked": [
+  {
+   "rank": null,
+   "id": 37,
+   "name": "Debbie Dingell",
+   "party": "D",
+   "chamber": "house",
+   "state": "MI",
+   "buys_measured": 9,
+   "beat_spy_rate": 33.3,
+   "skill_factor": 1.0,
+   "as_of": "2026-09-20"
+  },
+  {
+   "rank": null,
+   "id": 206,
+   "name": "Morgan McGarvey",
+   "party": "D",
+   "chamber": "house",
+   "state": "KY",
+   "buys_measured": 9,
+   "beat_spy_rate": 77.8,
+   "skill_factor": 1.0,
+   "as_of": "2026-09-20"
+  },
+  {
+   "rank": null,
+   "id": 11,
+   "name": "John Fetterman",
+   "party": "D",
+   "chamber": "senate",
+   "state": "PA",
+   "buys_measured": 8,
+   "beat_spy_rate": 50.0,
+   "skill_factor": 1.0,
+   "as_of": "2026-09-20"
+  }
+ ]
+}

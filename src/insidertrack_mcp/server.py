@@ -19,13 +19,13 @@ from functools import wraps
 from typing import Any
 
 from mcp.server.mcpserver import MCPServer
+from mcp.types import ToolAnnotations
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from . import client
+from . import tools
 from .config import settings
-from .formatting import cap_rows, envelope
 from .version import __version__
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
@@ -75,45 +75,15 @@ def audited(fn: ToolFn) -> ToolFn:
 
 
 # ── Tools ─────────────────────────────────────────────────────────────────────
+# Every tool is read-only and idempotent; the annotations tell clients so.
 
-
-@mcp.tool()
-@audited
-async def search(query: str) -> dict[str, Any]:
-    """Find members of Congress, tickers and Federal Reserve officials by name or symbol.
-
-    Use this first when you have a person's name or part of a ticker and need
-    the politician id or exact symbol that the other tools take. Matching is
-    case-insensitive and partial ("pelosi", "NVD").
-
-    Args:
-        query: A name or ticker fragment, 1-80 characters.
-    """
-    query = query.strip()
-    if not 1 <= len(query) <= 80:
-        return client.error("query must be 1-80 characters")
-    data = await client.get("/search/", {"q": query})
-    if client.is_error(data):
-        return data
-    return envelope(
-        {
-            "politicians": [
-                {
-                    "id": p["id"],
-                    "name": p["name"],
-                    "chamber": p.get("chamber"),
-                    "party": p.get("party"),
-                    "state": p.get("state"),
-                    "tracked": p.get("is_tracked"),
-                }
-                for p in cap_rows(data.get("politicians", []))
-            ],
-            "tickers": cap_rows(data.get("tickers", [])),
-            "fed_officials": [
-                {"id": f["id"], "name": f["name"], "title": f.get("title")}
-                for f in cap_rows(data.get("fed_officials", []))
-            ],
-        }
+for _fn in tools.TOOLS:
+    mcp.add_tool(
+        audited(_fn),
+        name=_fn.__name__,
+        annotations=ToolAnnotations(
+            read_only_hint=True, idempotent_hint=True, open_world_hint=False
+        ),
     )
 
 

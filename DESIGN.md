@@ -7,7 +7,7 @@ instance: who in Congress is buying what, which insiders are clustering,
 what a ticker scores and why, and whether those signals have actually
 worked.
 
-Status: **phase 0 done** (2026-09-20) — scaffold, `search` tool, CI, Docker image; verified against the live instance.
+Status: **phase 1 done** (2026-09-20) — nine read tools verified against the live instance; next is phase 2 (deploy behind the Funnel with tokens).
 
 ## 1. What it is, in one paragraph
 

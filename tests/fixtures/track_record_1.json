@@ -1,0 +1,112 @@
+{
+ "politician_id": 1,
+ "windows": {
+  "30": {
+   "n": 21,
+   "avg_return": 5.97,
+   "median_return": 4.1,
+   "win_rate": 81.0,
+   "avg_excess": 4.06,
+   "beat_spy_rate": 71.4
+  },
+  "60": {
+   "n": 20,
+   "avg_return": 3.17,
+   "median_return": 3.81,
+   "win_rate": 55.0,
+   "avg_excess": 2.49,
+   "beat_spy_rate": 60.0
+  },
+  "90": {
+   "n": 20,
+   "avg_return": 5.2,
+   "median_return": 6.52,
+   "win_rate": 60.0,
+   "avg_excess": 3.52,
+   "beat_spy_rate": 65.0
+  }
+ },
+ "trades": [
+  {
+   "trade_id": 2065,
+   "ticker": "INTC",
+   "trade_date": "2026-07-24",
+   "disclosure_date": "2026-08-21",
+   "entry_date": "2026-08-21",
+   "entry_price": 90.07,
+   "amount_range": "$500,001 - $1,000,000",
+   "owner": "self",
+   "r30": 20.57,
+   "x30": 21.1,
+   "r60": null,
+   "x60": null,
+   "r90": null,
+   "x90": null
+  },
+  {
+   "trade_id": 9142,
+   "ticker": "VST",
+   "trade_date": "2026-01-16",
+   "disclosure_date": "2026-01-23",
+   "entry_date": "2026-01-23",
+   "entry_price": 160.12,
+   "amount_range": "$100,001 - $250,000",
+   "owner": "spouse",
+   "r30": 7.04,
+   "x30": 7.01,
+   "r60": -4.62,
+   "x60": 0.61,
+   "r90": -2.04,
+   "x90": -4.83
+  }
+ ],
+ "evaluated": 21,
+ "skipped_demo": 1,
+ "sells": {
+  "windows": {
+   "30": {
+    "n": 4,
+    "avg_return": -5.94,
+    "median_return": -7.2,
+    "win_rate": 75.0,
+    "avg_excess": -7.14,
+    "beat_spy_rate": 75.0
+   },
+   "60": {
+    "n": 4,
+    "avg_return": 5.67,
+    "median_return": 2.87,
+    "win_rate": 50.0,
+    "avg_excess": 6.79,
+    "beat_spy_rate": 50.0
+   },
+   "90": {
+    "n": 4,
+    "avg_return": 17.77,
+    "median_return": 1.38,
+    "win_rate": 50.0,
+    "avg_excess": 15.04,
+    "beat_spy_rate": 50.0
+   }
+  },
+  "trades": [
+   {
+    "trade_id": 9141,
+    "ticker": "PYPL",
+    "trade_date": "2025-12-30",
+    "disclosure_date": "2026-01-23",
+    "entry_date": "2026-01-23",
+    "entry_price": 56.62,
+    "amount_range": "$250,001 - $500,000",
+    "owner": "spouse",
+    "r30": -26.44,
+    "x30": -26.47,
+    "r60": -21.92,
+    "x60": -16.69,
+    "r90": -12.13,
+    "x90": -14.92
+   }
+  ],
+  "evaluated": 4
+ }
+}

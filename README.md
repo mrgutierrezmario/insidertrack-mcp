@@ -8,8 +8,8 @@ what a ticker scores and why, and whether those signals actually worked.
 
 **By M.G. Network and Technology Solutions.**
 
-> Status: early. One tool (`search`) is live end to end; the rest are
-> specified in [DESIGN.md](DESIGN.md) and arrive in the next releases.
+> Status: the nine read tools work end to end against a live instance.
+> Remote deployment (bearer tokens over the Funnel) is next; see [DESIGN.md](DESIGN.md).
 
 ## How it works
 
@@ -49,7 +49,18 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"   # make a token
 | Tool | Question it answers |
 |---|---|
 | `search` | "Who is Pelosi in this system? What's the exact ticker?" — ids and symbols for the other tools |
-| *(next)* `congress_trades`, `ticker_signal`, `cluster_buys`, `member_track_record`, `leaderboard`, `signal_outcomes`, `model_desk` | see [DESIGN.md](DESIGN.md) |
+| `congress_trades` | "What did members of Congress do in NVDA since June?" — filter by ticker, member, buy/sell, owner, asset type, dates |
+| `ticker_signal` | "What does KMX score, and why?" — the 0–100 composite, sub-scores and written reasons |
+| `top_signals` | "What scores highest right now?" — the strongest tickers, no reasons |
+| `cluster_buys` | "Where are several insiders buying their own stock?" — market-wide Form 4 clusters |
+| `member_track_record` | "How have Pelosi's buys actually done?" — 30/60/90-day returns vs SPY, buys and sales, the weight it earns |
+| `leaderboard` | "Which members beat the market most often?" — ranked by 90-day beat-SPY rate |
+| `signal_outcomes` | "Does 'Strong Watch' actually go up?" — hit-rates per label per scoring version |
+| `model_desk` | "What did the site's model call this morning, and how have its calls scored?" |
+
+All read-only and idempotent (declared as such in the tool annotations),
+each capped to a sensible number of rows, dollars pre-formatted, no internal
+ids a model cannot use.
 
 Every result carries `as_of` and a disclaimer: InsiderTrack scores public
 disclosures; it is a scorecard, not investment advice.

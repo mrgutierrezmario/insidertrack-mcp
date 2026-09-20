@@ -1,0 +1,9 @@
+{
+ "id": 1,
+ "name": "Nancy Pelosi",
+ "chamber": "house",
+ "party": "D",
+ "state": "CA",
+ "skill_factor": 1.2,
+ "is_tracked": true
+}
