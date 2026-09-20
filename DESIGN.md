@@ -7,7 +7,7 @@ instance: who in Congress is buying what, which insiders are clustering,
 what a ticker scores and why, and whether those signals have actually
 worked.
 
-Status: **phase 1 done** (2026-09-20) — nine read tools verified against the live instance; next is phase 2 (deploy behind the Funnel with tokens).
+Status: **phase 2 done** (2026-09-20) — live at `/mcp` on the InsiderTrack Funnel URL: token-gated (401 without), rate-limited (429 verified), nine tools answering over the internet. Next: phase 3 (resources, prompts, README transcript, v0.1.0).
 
 ## 1. What it is, in one paragraph
 

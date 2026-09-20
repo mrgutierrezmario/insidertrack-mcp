@@ -52,9 +52,16 @@ Done (commits `723e0d3`, `b1e6679`, `b14e25c`):
 - The client (`client.py`) has a 10 s timeout, returns `{"error","hint"}`
   objects instead of raising, and detects the app's HTML fallback (see §5).
 
-Not done: phase 2 (deploy behind the Funnel), phase 3 (resources, prompts,
-README transcript, v0.1.0), phase 4 (writes, OAuth, extra tools). Also the
-README still says "one tool is live" — it is nine; fix it in phase 3.
+- Phase 2 (commits `d58a25c`…, app commit `f2b5e7b`) — deployed: `mcp`
+  service in the app's stack, `/mcp` handler in serve.json, token in the
+  app's `deploy/.env` (`MCP_TOKENS=claude:…`). Verified from the internet
+  2026-09-20 20:24 UTC: health 200, no/wrong token 401, full session with
+  nine tools, 429 after the window. The app was not restarted (Tailscale
+  reloaded serve.json in place). `watchlist_add` is written and tested but
+  not enabled (`MCP_ALLOW_WRITES=0`).
+
+Not done: phase 3 (resources, prompts, README transcript, v0.1.0), phase 4
+(enable the write, OAuth, whale tools).
 
 ## 4. What to do next, in order, and why
 
