@@ -81,6 +81,11 @@ Done (commits `723e0d3`, `b1e6679`, `b14e25c`):
 - **v0.2.0** (2026-09-20): `fund_leaderboard`, `fund_track_record`, funds in
   `search`; the stateless-transport and `X-API-Key` fixes are now in a tag.
 
+- Profile/LinkedIn work done 2026-09-20: GitHub profile README lists this
+  project; `design/social-preview.png` is the repo's social image and the
+  LinkedIn post image. Next project (`../homelab-gitops`, designed only)
+  would deploy this server first as its easiest chart.
+
 Not done: phase 4 remainder (enable the write, OAuth) — optional. Decided
 2026-09-20 with the owner: **no in-app chat window in InsiderTrack** for now;
 if ever, bring-your-own-key and reuse this repo's `tools.py` as the tool layer.
