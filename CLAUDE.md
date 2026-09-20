@@ -18,7 +18,7 @@ file is newer — fix DESIGN.md.
 |---|---|---|
 | What | The site: scrapers, scores, track records, AI Desk, alerts, UI | A server that lets Claude ask the site questions |
 | Direction of AI | The **site calls a model** (Gemini today; Ollama wired in, unconfigured) for three jobs: reading scanned paper filings, the daily AI Desk brief, on-demand research notes | **Claude calls the site.** No model runs here. This server never needs, holds or spends the site's AI key |
-| Live at | `https://mgnts-stock-tracker.tail3659a6.ts.net` | will be `…/mcp` on the same URL (phase 2) |
+| Live at | `https://<the InsiderTrack Funnel host>` | will be `…/mcp` on the same URL (phase 2) |
 | Repo | `github.com/mrgutierrezmario/insidertrack`, public, v1.1.0, branch protection on `main` | `github.com/mrgutierrezmario/insidertrack-mcp` |
 
 **The rule:** this project consumes the app's public read API. It does not
@@ -28,6 +28,8 @@ instead of making it; the app has its own checkpoint and its own session.
 
 ## 2. Standing rules from the owner (apply here too)
 
+- **This repo is public** (since 2026-09-20). No live hostnames, tokens or
+  e-mail addresses in committed files; `<placeholders>` instead.
 - **No attribution trailers on commits** — no `Co-Authored-By`, no tool
   name, nothing. Author is the git user; message only.
 - No secrets in git. Tokens live in InsiderTrack's `deploy/.env` (ignored)
@@ -71,7 +73,7 @@ Not done: phase 4 (enable the write, OAuth, whale tools) — optional.
 
 ### Phase 2 — deploy into the InsiderTrack stack
 
-Goal: `https://mgnts-stock-tracker.tail3659a6.ts.net/mcp` answers with a
+Goal: `https://<the InsiderTrack Funnel host>/mcp` answers with a
 token and refuses without one, from Claude Desktop and claude.ai.
 
 1. **Verify the Funnel path rule first, on paper, before touching the
