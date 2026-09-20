@@ -73,6 +73,11 @@ Done (commits `723e0d3`, `b1e6679`, `b14e25c`):
 - HTTP transport is **stateless** (a container rebuild had broken claude.ai's
   session: "Missing session ID").
 
+- `deploy/OPERATIONS.md` written (nothing to back up; reboot, update,
+  rebuild-from-nothing, tokens, when it's down). First Dependabot PR
+  (fetch-metadata 2→3, a major) merged by hand after reading the notes —
+  that's the auto-merge workflow working as designed.
+
 Not done: phase 4 (enable the write, OAuth, whale tools) — optional. Decided
 2026-09-20 with the owner: **no in-app chat window in InsiderTrack** for now;
 if ever, bring-your-own-key and reuse this repo's `tools.py` as the tool layer.
