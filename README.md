@@ -123,6 +123,13 @@ InsiderTrack instance needed. CI runs lint, tests and the Docker build on
 every push; Dependabot keeps the pins current (patch and minor bumps merge
 themselves once CI is green).
 
+## Operations
+
+Nothing to back up — no database, no volumes; tokens live in InsiderTrack's
+`.env`, which its nightly backup covers. How it comes back after a reboot,
+how to update or rebuild it, rotate tokens, and what to check when it's
+down: [`deploy/OPERATIONS.md`](deploy/OPERATIONS.md).
+
 ## Versions
 
 The version lives in `VERSION` and is reported by the server on
