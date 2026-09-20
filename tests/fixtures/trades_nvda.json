@@ -1,0 +1,62 @@
+{
+ "items": [
+  {
+   "id": 2008,
+   "ticker": "NVDA",
+   "asset_name": "",
+   "transaction_type": "purchase",
+   "direction": "buy",
+   "asset_type": "stock",
+   "owner": "self",
+   "amount_range": "$1,001 - $15,000",
+   "amount_low": 1001,
+   "amount_high": 15000,
+   "trade_date": "2026-08-18",
+   "disclosure_date": "2026-09-02",
+   "source": "house",
+   "filing_id": "20035367",
+   "filing_url": "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035367.pdf",
+   "ai_confidence": null,
+   "amends": null,
+   "risk_level": "MEDIUM",
+   "politician": {
+    "id": 57,
+    "name": "John McGuire",
+    "chamber": "house",
+    "party": "R",
+    "state": "VA"
+   }
+  },
+  {
+   "id": 1039,
+   "ticker": "NVDA",
+   "asset_name": "NVIDIA Corporation - Common Stock",
+   "transaction_type": "sale (partial)",
+   "direction": "sell",
+   "asset_type": "stock",
+   "owner": "self",
+   "amount_range": "$15,001 - $50,000",
+   "amount_low": 15001,
+   "amount_high": 50000,
+   "trade_date": "2026-08-13",
+   "disclosure_date": "2026-09-02",
+   "source": "senate",
+   "filing_id": "f8d003c0-ca1e-4c39-9d66-632d220180e1",
+   "filing_url": "https://efdsearch.senate.gov/search/view/ptr/f8d003c0-ca1e-4c39-9d66-632d220180e1/",
+   "ai_confidence": null,
+   "amends": null,
+   "risk_level": "HIGH",
+   "politician": {
+    "id": 14,
+    "name": "Sheldon Whitehouse",
+    "chamber": "senate",
+    "party": "D",
+    "state": "RI"
+   }
+  }
+ ],
+ "total": 211,
+ "offset": 0,
+ "limit": 2,
+ "has_more": true
+}

@@ -1,0 +1,51 @@
+{
+ "brief": {
+  "date": "2026-09-20",
+  "summary": "Today's data features massive insider open-market buying in select names, led by GME with over $21.7 million across four insiders and PMTS drawing nearly $12 million. Meanwhile, top proprietary scores highlight strong insider accumulation coupled with oversold RSI levels in tickers like KMX and BSX, supported by prominent institutional backing. Conversely, heavy Form 4 dumping is triggering High Risk warnings across several large caps, highlighted by severe insider selling in CPAY and widespread distribution in MSFT.",
+  "provider": "gemini/gemini-flash-latest"
+ },
+ "calls": [
+  {
+   "id": 4,
+   "call_date": "2026-09-20",
+   "ticker": "CPAY",
+   "direction": "bearish",
+   "horizon_days": 90,
+   "confidence": 0.84,
+   "reasoning": "CPAY shares a rock-bottom score of 17 ('High Risk') driven by extreme insider distribution totaling 36 Form 4 sales against 0 buys. This relentless executive exit is compounded by a congressional sale and lackluster momentum at a 41.3 RSI.",
+   "provider": "gemini/gemini-flash-latest",
+   "price_at_call": 397.76,
+   "price_at_horizon": null,
+   "return_pct": null,
+   "spy_return_pct": null,
+   "excess_pct": null,
+   "outcome": null,
+   "resolves_on": "2026-12-19"
+  },
+  {
+   "id": 1,
+   "call_date": "2026-09-20",
+   "ticker": "KMX",
+   "direction": "bullish",
+   "horizon_days": 60,
+   "confidence": 0.82,
+   "reasoning": "KMX commands the highest score in today's dataset at 74 ('Strong Watch') with 5 Form 4 insider buys against zero sells and backing from activist fund Starboard Value. With an oversold RSI of 30.0 and unanimous insider accumulation, the stock shows prime conditions for a directional rebound.",
+   "provider": "gemini/gemini-flash-latest",
+   "price_at_call": 57.21,
+   "price_at_horizon": null,
+   "return_pct": null,
+   "spy_return_pct": null,
+   "excess_pct": null,
+   "outcome": null,
+   "resolves_on": "2026-11-19"
+  }
+ ],
+ "stats": {
+  "resolved": 0,
+  "pending": 4,
+  "hit_rate": null,
+  "avg_excess": null,
+  "by_horizon": {},
+  "by_direction": {}
+ }
+}

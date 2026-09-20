@@ -13,7 +13,10 @@ services:
       INSIDERTRACK_URL: http://tailscale:8003
       MCP_TOKENS: ${MCP_TOKENS:?set MCP_TOKENS in deploy/.env}
       MCP_ALLOW_WRITES: ${MCP_ALLOW_WRITES:-0}
-      INSIDERTRACK_ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+      # The one write tool (watchlist_add) acts as the owner's own watchlist
+      # identity — never an admin credential. Both must be set for it to exist.
+      INSIDERTRACK_WATCHLIST_EMAIL: ${INSIDERTRACK_WATCHLIST_EMAIL:-}
+      INSIDERTRACK_WATCHLIST_TOKEN: ${INSIDERTRACK_WATCHLIST_TOKEN:-}
     depends_on: [app]
     logging:
       driver: json-file

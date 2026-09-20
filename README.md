@@ -8,8 +8,34 @@ what a ticker scores and why, and whether those signals actually worked.
 
 **By M.G. Network and Technology Solutions.**
 
-> Status: early. One tool (`search`) is live end to end; the rest are
-> specified in [DESIGN.md](DESIGN.md) and arrive in the next releases.
+> **v0.1.0** — running in production alongside InsiderTrack: nine read tools,
+> two resources, two prompts, token-gated over the public URL. Connected to
+> claude.ai as a custom connector. Design notes in [DESIGN.md](DESIGN.md).
+
+## What it looks like
+
+A question the site cannot answer on any one page — *"Where are several
+insiders buying their own stock this month, and did anyone in Congress buy
+the same names? How good is that member's record?"* — becomes three tool
+calls. Recorded against the live instance on 2026-09-20:
+
+```
+cluster_buys(days=30)
+  BABA  2 insiders  $25.7M      PMTS  5 insiders  $12.0M
+  GME   4 insiders  $21.7M      SBLK  8 insiders  $6.9M
+  UBER  2 insiders  $15.3M      NGL   2 insiders  $5.8M   …
+
+congress_trades(ticker="UBER", direction="buy", since="2026-06-01")
+  Dan Newhouse (R-WA, House)  $1,001 – $15,000  traded 2026-07-10
+
+member_track_record(politician_id=…)
+  89 measured buys · 90-day win rate 43.8% · beat SPY 40.4% of the time
+  avg excess vs SPY −2.3 pts · weight in the composite score: 0.9
+```
+
+So: one overlap, and the member behind it has a below-market record — the
+score already discounts his trades. Claude writes that paragraph; the
+server only hands it the facts, each stamped `as_of` and with the disclaimer.
 
 ## How it works
 
@@ -37,8 +63,16 @@ claude mcp add insidertrack -e INSIDERTRACK_URL=http://localhost:8013 -- .venv/b
 Over HTTP, inside the InsiderTrack Compose stack: add the service from
 [`deploy/compose.snippet.yml`](deploy/compose.snippet.yml) to its
 `deploy/compose.yml`, put an `MCP_TOKENS=name:token` line in its
-`deploy/.env`, and forward `/mcp` on the Funnel. Clients connect to
-`https://<your-funnel-host>/mcp` with `Authorization: Bearer <token>`.
+`deploy/.env`, and add a `/mcp` handler to the Tailscale serve config
+(Tailscale strips the prefix, so the server itself listens at `/`).
+
+Then connect a client:
+
+| Client | How |
+|---|---|
+| **claude.ai / Claude Desktop** | Settings → Connectors → *Add custom connector* → URL `https://<host>/mcp`, transport Streamable HTTP, Authentication **No sign-in**, request header `X-API-Key` = the token. (claude.ai keeps the `Authorization` header for its own OAuth, so use `X-API-Key`.) The nine tools appear under *Read-only tools*; set them to *Always allow*. |
+| **Claude Code** | `claude mcp add --transport http insidertrack https://<host>/mcp --header "Authorization: Bearer <token>"` |
+| **Local, no network** | `claude mcp add insidertrack -e INSIDERTRACK_URL=http://localhost:8013 -- .venv/bin/insidertrack-mcp` |
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"   # make a token
@@ -49,7 +83,29 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"   # make a token
 | Tool | Question it answers |
 |---|---|
 | `search` | "Who is Pelosi in this system? What's the exact ticker?" — ids and symbols for the other tools |
-| *(next)* `congress_trades`, `ticker_signal`, `cluster_buys`, `member_track_record`, `leaderboard`, `signal_outcomes`, `model_desk` | see [DESIGN.md](DESIGN.md) |
+| `congress_trades` | "What did members of Congress do in NVDA since June?" — filter by ticker, member, buy/sell, owner, asset type, dates |
+| `ticker_signal` | "What does KMX score, and why?" — the 0–100 composite, sub-scores and written reasons |
+| `top_signals` | "What scores highest right now?" — the strongest tickers, no reasons |
+| `cluster_buys` | "Where are several insiders buying their own stock?" — market-wide Form 4 clusters |
+| `member_track_record` | "How have Pelosi's buys actually done?" — 30/60/90-day returns vs SPY, buys and sales, the weight it earns |
+| `leaderboard` | "Which members beat the market most often?" — ranked by 90-day beat-SPY rate |
+| `signal_outcomes` | "Does 'Strong Watch' actually go up?" — hit-rates per label per scoring version |
+| `model_desk` | "What did the site's model call this morning, and how have its calls scored?" |
+
+All read-only and idempotent (declared as such in the tool annotations),
+each capped to a sensible number of rows, dollars pre-formatted, no internal
+ids a model cannot use. One optional write, `watchlist_add`, exists only when
+the operator sets `MCP_ALLOW_WRITES=1` and gives the server their own
+watchlist identity — it never holds an admin credential.
+
+### Resources and prompts
+
+| | |
+|---|---|
+| `insidertrack://brief/today` | The site's model's morning brief and today's calls, as text |
+| `insidertrack://sources/health` | How fresh each data source is, and recent errors — so an answer can say "House data is two days old" |
+| prompt `morning_brief` | What changed this week: cluster buys, Congress purchases, top scores, how the model's calls resolved |
+| prompt `due_diligence(ticker)` | A one-page note on one ticker, in a fixed order, ending with what the data supports, what it doesn't, and what would change the picture |
 
 Every result carries `as_of` and a disclaimer: InsiderTrack scores public
 disclosures; it is a scorecard, not investment advice.

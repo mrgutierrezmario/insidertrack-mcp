@@ -1,0 +1,85 @@
+{
+ "computed_at": "2026-09-20T16:32:22.315156+00:00",
+ "score_version": 4,
+ "signals": [
+  {
+   "ticker": "KMX",
+   "signal": "NEUTRAL",
+   "score": 1,
+   "composite_score": 74,
+   "label": "Strong Watch",
+   "current_price": 57.21,
+   "is_demo": false,
+   "sma20": 61.3,
+   "sma50": null,
+   "rsi": 30.0,
+   "reasons": [
+    "Starboard Value holds this position",
+    "High conviction: 5% of Starboard Value's book",
+    "Congress: 1 buy(s) \u2248 $7K, no recent sells \u2014 strong conviction",
+    "Form 4: 5 insider buy(s) \u2248 $770K, no open-market sells",
+    "Cluster buy: 4 different insiders bought",
+    "Price below SMA20 ($61.3)",
+    "RSI 30.0 \u2014 neutral range",
+    "1 MEDIUM-risk disclosure(s)"
+   ],
+   "insider_buys": 1,
+   "insider_sells": 0,
+   "insider_buy_dollars": 7360.0,
+   "insider_sell_dollars": 0,
+   "corporate_buys": 5,
+   "corporate_sells": 0,
+   "window_start": "2026-08-06",
+   "window_end": "2026-09-20",
+   "last_trade_date": "2026-08-19",
+   "last_filing_date": "2026-06-30",
+   "sub_scores": {
+    "smart_money": 13,
+    "insider": 30,
+    "corporate": 25,
+    "momentum": 8,
+    "risk_penalty": 2
+   }
+  },
+  {
+   "ticker": "NVDA",
+   "signal": "NEUTRAL",
+   "score": -1,
+   "composite_score": 61,
+   "label": "Watch",
+   "current_price": 222.27,
+   "is_demo": false,
+   "sma20": 218.88,
+   "sma50": null,
+   "rsi": 54.7,
+   "reasons": [
+    "Altimeter Capital, Cathie Wood / ARK Invest, Coatue Management and 4 more hold this position",
+    "High conviction: 25% of Altimeter Capital's book",
+    "Institution increased position this quarter",
+    "Congress: 3 sell(s) \u2248 $67K outweigh 1 buy(s) \u2248 $6K",
+    "Form 4: 20 insider sale(s) \u2248 $660.7M, no buys (insider selling is often routine)",
+    "Price above SMA20 ($218.88)",
+    "RSI 54.7 \u2014 neutral range",
+    "3 HIGH-risk disclosure(s) \u2014 stale data",
+    "1 MEDIUM-risk disclosure(s)"
+   ],
+   "insider_buys": 1,
+   "insider_sells": 3,
+   "insider_buy_dollars": 6400.0,
+   "insider_sell_dollars": 66925.0,
+   "corporate_buys": 0,
+   "corporate_sells": 20,
+   "window_start": "2026-08-06",
+   "window_end": "2026-09-20",
+   "last_trade_date": "2026-08-18",
+   "last_filing_date": "2026-06-30",
+   "sub_scores": {
+    "smart_money": 13,
+    "insider": 7,
+    "corporate": 4,
+    "momentum": 16,
+    "risk_penalty": 17
+   }
+  }
+ ]
+}

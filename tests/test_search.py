@@ -3,12 +3,12 @@
 import httpx
 from conftest import fixture
 
-from insidertrack_mcp import server
+from insidertrack_mcp import server, tools
 
 
 async def test_search_returns_politicians_with_ids(upstream):
     upstream.get("/search/").mock(return_value=httpx.Response(200, json=fixture("search_pelosi")))
-    result = await server.search("pelosi")
+    result = await tools.search("pelosi")
     assert result["politicians"] == [
         {
             "id": 12,
@@ -25,20 +25,20 @@ async def test_search_returns_politicians_with_ids(upstream):
 
 
 async def test_search_rejects_empty_query(upstream):
-    result = await server.search("   ")
+    result = await tools.search("   ")
     assert result["error"].startswith("query must be")
     assert not upstream.calls
 
 
 async def test_search_upstream_down_is_an_error_object(upstream):
     upstream.get("/search/").mock(side_effect=httpx.ConnectError("refused"))
-    result = await server.search("nvda")
+    result = await tools.search("nvda")
     assert result == {"error": "Could not reach InsiderTrack", "hint": "Check that the site is up."}
 
 
 async def test_search_http_500_is_an_error_object(upstream):
     upstream.get("/search/").mock(return_value=httpx.Response(500, text="boom"))
-    result = await server.search("nvda")
+    result = await tools.search("nvda")
     assert result["error"] == "InsiderTrack returned HTTP 500"
     assert result["hint"] == "boom"
 

@@ -1,0 +1,4 @@
+{"status": "ok", "version": "1.1.0", "db": true, "scheduler": true, "errors_24h": {"hours": 24, "count": 0},
+ "data": {"status": "ok", "sources": {
+   "senate": {"label": "Senate EFD", "status": "ok", "last_success_at": "2026-09-20T16:29:40+00:00", "last_new_rows_at": "2026-09-19T21:47:53+00:00", "last_error": null},
+   "house": {"label": "House Clerk PTRs", "status": "stale", "last_success_at": "2026-09-17T16:31:01+00:00", "last_new_rows_at": "2026-09-17T21:59:41+00:00", "last_error": "HTTP 503"}}}}

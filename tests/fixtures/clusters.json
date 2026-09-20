@@ -1,0 +1,38 @@
+{
+ "days": 30,
+ "min_buyers": 2,
+ "items": [
+  {
+   "ticker": "BABA",
+   "company": "Alibaba Group Holding Ltd",
+   "buyers": 2,
+   "buys": 3,
+   "dollars": 25691200,
+   "last_buy": "2026-08-25"
+  },
+  {
+   "ticker": "NONE",
+   "company": "Some Private BDC",
+   "buyers": 7,
+   "buys": 9,
+   "dollars": 25000000,
+   "last_buy": "2026-09-17"
+  },
+  {
+   "ticker": "NONE",
+   "company": "Stellus Private Credit BDC",
+   "buyers": 7,
+   "buys": 9,
+   "dollars": 24966319,
+   "last_buy": "2026-09-17"
+  },
+  {
+   "ticker": "GME",
+   "company": "GameStop Corp.",
+   "buyers": 4,
+   "buys": 4,
+   "dollars": 21705931,
+   "last_buy": "2026-09-10"
+  }
+ ]
+}

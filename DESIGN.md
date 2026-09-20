@@ -7,7 +7,7 @@ instance: who in Congress is buying what, which insiders are clustering,
 what a ticker scores and why, and whether those signals have actually
 worked.
 
-Status: **phase 0 done** (2026-09-20) — scaffold, `search` tool, CI, Docker image; verified against the live instance.
+Status: **v0.1.0 released** (2026-09-20) — live at `/mcp` on the InsiderTrack Funnel URL, token-gated, rate-limited, nine tools + two resources + two prompts; connected to claude.ai as a custom connector. Phase 4 items remain optional.
 
 ## 1. What it is, in one paragraph
 
@@ -29,8 +29,8 @@ same Tailscale Funnel URL under `/mcp`.
 | Language | Python 3.12, official `mcp` SDK 2.x (`MCPServer`), `httpx` | Same language as the app; the SDK's decorators turn a typed function into a tool with a schema |
 | Transport | **Streamable HTTP** at `/mcp`, plus **stdio** for local use | HTTP is what claude.ai custom connectors and Claude Desktop remote servers speak; stdio is free with the SDK and handy for Claude Code on the same machine |
 | Auth (client → MCP) | Bearer token, one per client, in `deploy/.env` | The Funnel URL is public; the server must not be. OAuth is the spec's preferred path — v2 if a second user ever needs access |
-| Auth (MCP → app) | None needed for reads; the app's admin token only for `watchlist_add` | InsiderTrack's read endpoints are public behind the site-access agreement; the MCP container calls the app on the Docker network (`http://tailscale:8003` — the app shares the Tailscale container's network namespace), never through the Funnel |
-| Writes | **One** tool (`watchlist_add`), off by default (`MCP_ALLOW_WRITES=0`) | Everything valuable is a question. One write proves the pattern without making the server dangerous |
+| Auth (MCP → app) | None needed for reads; the owner's own watchlist bearer token (e-mail-keyed, minted by the app) for `watchlist_add` — never the admin credential, which is an hourly HMAC of the admin password and has no static form (decided 2026-09-20; see CLAUDE.md §6a) | InsiderTrack's read endpoints are public behind the site-access agreement; the MCP container calls the app on the Docker network (`http://tailscale:8003` — the app shares the Tailscale container's network namespace), never through the Funnel |
+| Writes | **One** tool (`watchlist_add`), registered only with `MCP_ALLOW_WRITES=1` **and** the owner's watchlist e-mail + token set | Everything valuable is a question. One write proves the pattern; the worst a leaked MCP token can do is add a symbol to the owner's list |
 | Result size | Hard caps per tool (rows, characters); dates and dollars pre-formatted | Tool output is context; 500 raw rows help nobody. The model asks again with a narrower filter |
 | Disclaimer | In every tool description and in the server instructions | It is a scorecard, not advice — same line the app uses |
 
@@ -53,7 +53,7 @@ recover.
 | `leaderboard` | `min_trades` (default 10), `limit` ≤ 50 | members ranked by 90-day beat-SPY rate | `GET /politicians/leaderboard` |
 | `signal_outcomes` | `score_version?`, `window_days?` | hit-rate per label at 30/60/90 d, n per cell — "does Strong Watch go up?" | `GET /outcomes/stats` |
 | `model_desk` | `date?` (default today), `include_history` | the morning brief and 3–5 calls with direction, horizon, confidence, reasoning; resolved calls with hit/miss and excess vs SPY | `GET /ai-desk/today`, `/ai-desk/calls` |
-| `watchlist_add` *(writes on)* | `ticker` | ok / already there | `POST /watchlist/` with admin token |
+| `watchlist_add` *(writes on)* | `ticker` | added / already watching | `POST /watchlist/` `{email, ticker}` with the owner's watchlist bearer token from env |
 
 That is ten reads and one write; the first cut ships the **eight in bold
 below** and adds the rest once they are used:
@@ -77,8 +77,12 @@ leaderboard, signal_outcomes, model_desk.**
 
 ## 4. Guardrails
 
-- Read-only by construction: the client only knows `GET` endpoints unless
-  `MCP_ALLOW_WRITES=1`, and then only `POST /watchlist/`.
+- Read-only by construction: the write tool is not even registered unless
+  `MCP_ALLOW_WRITES=1` and the watchlist identity is configured, and then
+  the client knows exactly one `POST` (`/watchlist/`).
+- Never calls the app's admin, sync, backfill, AI-note or AI-desk-generate
+  endpoints — those cost quota or start jobs on a single-worker server
+  (see `CLAUDE.md` §6 for the list).
 - Per-token rate limit (60 calls / minute) and a 10-second upstream timeout.
 - Output caps: rows per tool as above; free text (reasoning, briefs)
   truncated at 4,000 characters with a marker.
@@ -100,11 +104,14 @@ insidertrack stack (deploy/compose.yml)
   mcp        ← NEW: this project, :8100, joins the same network
 ```
 
-The Funnel forwards one port, so the app's reverse-proxies `/mcp/*` to
-`mcp:8100` (a 15-line addition to InsiderTrack's `main.py`, or a path rule
-in the Tailscale serve config — the latter keeps the app untouched and is
-preferred). Locally, `MCP_TRANSPORT=stdio` runs it as a subprocess for
-Claude Code with no network at all.
+The Funnel forwards one port, so a second handler in the stack's Tailscale
+`serve.json` sends `/mcp` to `mcp:8100` (the app stays untouched). Tailscale
+**strips** the mount path (verified 2026-09-20: `/mcp/health` arrives as
+`/health`), so this server mounts at `/` (`MCP_PATH`) with its open health
+route at `/health`; publicly that is `/mcp` and `/mcp/health`. Changing `serve.json` restarts the tailscale container and
+therefore the app (shared network namespace) — deploy outside the app's job
+windows. Locally, `MCP_TRANSPORT=stdio` runs it as a subprocess for Claude
+Code with no network at all.
 
 Config (`deploy/.env`):
 
@@ -112,7 +119,8 @@ Config (`deploy/.env`):
 INSIDERTRACK_URL=http://tailscale:8003
 MCP_TOKENS=claude-desktop:<random>,claude-code:<random>
 MCP_ALLOW_WRITES=0
-INSIDERTRACK_ADMIN_TOKEN=            # only if writes are on
+INSIDERTRACK_WATCHLIST_EMAIL=        # only if writes are on: the owner's watchlist e-mail
+INSIDERTRACK_WATCHLIST_TOKEN=        # …and that e-mail's bearer token (from the site's localStorage or the recover e-mail)
 ```
 
 ## 6. Repository layout
@@ -150,9 +158,8 @@ insidertrack-mcp/
 
 ## 8. Open questions
 
-1. **Funnel path vs second Funnel port.** One `/mcp` path on the existing
-   URL is cleanest; Tailscale serve supports path-based routing. Verify on
-   the Mac before phase 2.
+1. ~~Funnel path~~ — a second `serve.json` handler; Tailscale strips the
+   prefix, server mounted at `/`. Verified live 2026-09-20.
 2. ~~Site-access gate~~ — confirmed 2026-09-20: read endpoints answer from
    the Docker network without it. Two things learned: the app shares the
    Tailscale container's network namespace, so its in-stack hostname is

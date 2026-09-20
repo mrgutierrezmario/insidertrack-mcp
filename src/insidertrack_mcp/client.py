@@ -64,17 +64,22 @@ async def get(path: str, params: dict[str, Any] | None = None) -> dict[str, Any]
 
 
 async def post(path: str, body: dict[str, Any]) -> dict[str, Any]:
-    """POST to InsiderTrack with the admin token. Only the watchlist tool uses this."""
-    if not settings.mcp_allow_writes:
-        return error("Writes are disabled on this server", "Set MCP_ALLOW_WRITES=1 to enable.")
+    """POST to InsiderTrack as the owner's watchlist identity. Only ``watchlist_add`` uses this."""
+    if not settings.writes_enabled:
+        return error("Writes are disabled on this server", "See MCP_ALLOW_WRITES in .env.example.")
     url = settings.insidertrack_url.rstrip("/") + path
-    headers = {"X-Admin-Token": settings.insidertrack_admin_token}
+    headers = {"Authorization": f"Bearer {settings.insidertrack_watchlist_token}"}
     try:
         async with httpx.AsyncClient(timeout=settings.upstream_timeout_seconds) as http:
             response = await http.post(url, json=body, headers=headers)
     except httpx.HTTPError as exc:
         logger.warning("upstream failure for %s: %s", path, exc)
         return error("Could not reach InsiderTrack", "Check that the site is up.")
+    if response.status_code == 401:
+        return error(
+            "watchlist token rejected",
+            "The token was replaced (Recover on the site) — update INSIDERTRACK_WATCHLIST_TOKEN.",
+        )
     if response.status_code >= 400:
         return error(f"InsiderTrack returned HTTP {response.status_code}", response.text[:200])
     try:

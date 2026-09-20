@@ -19,13 +19,13 @@ from functools import wraps
 from typing import Any
 
 from mcp.server.mcpserver import MCPServer
+from mcp.types import ToolAnnotations
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from . import client
+from . import extras, tools
 from .config import settings
-from .formatting import cap_rows, envelope
 from .version import __version__
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
@@ -75,49 +75,78 @@ def audited(fn: ToolFn) -> ToolFn:
 
 
 # ── Tools ─────────────────────────────────────────────────────────────────────
+# Every tool is read-only and idempotent; the annotations tell clients so.
 
-
-@mcp.tool()
-@audited
-async def search(query: str) -> dict[str, Any]:
-    """Find members of Congress, tickers and Federal Reserve officials by name or symbol.
-
-    Use this first when you have a person's name or part of a ticker and need
-    the politician id or exact symbol that the other tools take. Matching is
-    case-insensitive and partial ("pelosi", "NVD").
-
-    Args:
-        query: A name or ticker fragment, 1-80 characters.
-    """
-    query = query.strip()
-    if not 1 <= len(query) <= 80:
-        return client.error("query must be 1-80 characters")
-    data = await client.get("/search/", {"q": query})
-    if client.is_error(data):
-        return data
-    return envelope(
-        {
-            "politicians": [
-                {
-                    "id": p["id"],
-                    "name": p["name"],
-                    "chamber": p.get("chamber"),
-                    "party": p.get("party"),
-                    "state": p.get("state"),
-                    "tracked": p.get("is_tracked"),
-                }
-                for p in cap_rows(data.get("politicians", []))
-            ],
-            "tickers": cap_rows(data.get("tickers", [])),
-            "fed_officials": [
-                {"id": f["id"], "name": f["name"], "title": f.get("title")}
-                for f in cap_rows(data.get("fed_officials", []))
-            ],
-        }
+for _fn in tools.TOOLS:
+    mcp.add_tool(
+        audited(_fn),
+        name=_fn.__name__,
+        annotations=ToolAnnotations(
+            read_only_hint=True, idempotent_hint=True, open_world_hint=False
+        ),
     )
+
+# The one write exists only when the operator enabled it and gave the server
+# an identity to write as; otherwise clients never even see it.
+if settings.writes_enabled:
+    for _fn in tools.WRITE_TOOLS:
+        mcp.add_tool(
+            audited(_fn),
+            name=_fn.__name__,
+            annotations=ToolAnnotations(
+                read_only_hint=False, destructive_hint=False, idempotent_hint=True
+            ),
+        )
+
+
+# ── Resources and prompts ─────────────────────────────────────────────────────
+
+mcp.resource(
+    "insidertrack://brief/today",
+    name="Today's Model Desk brief",
+    description="The site's own model's morning brief and its calls for today, as text.",
+    mime_type="text/plain",
+)(extras.brief_today)
+mcp.resource(
+    "insidertrack://sources/health",
+    name="Data source health",
+    description="How fresh each data source is (Senate, House, Form 4, 13F…) and recent errors.",
+    mime_type="text/plain",
+)(extras.sources_health)
+mcp.prompt(
+    name="morning_brief",
+    description="What changed this week: cluster buys, Congress buys, top scores, model calls.",
+)(extras.morning_brief)
+mcp.prompt(
+    name="due_diligence",
+    description="A one-page note on one ticker: score and reasons, insiders, Congress, outcomes.",
+)(extras.due_diligence)
 
 
 # ── HTTP: bearer auth, rate limit, health ─────────────────────────────────────
+
+
+def _presented_token(request: Request) -> str:
+    """The token a client sent: ``Authorization: Bearer <t>`` (any case) or ``X-API-Key: <t>``.
+
+    Some clients reserve the Authorization header for their own OAuth flow, so
+    the custom header is the reliable path. A ``name:token`` value — the form
+    used in ``MCP_TOKENS`` — is accepted too, since people copy it that way.
+    """
+    header = request.headers.get("authorization", "")
+    token = header[7:].strip() if header[:7].lower() == "bearer " else ""
+    if not token:
+        token = request.headers.get("x-api-key", "").strip()
+    if token and token not in settings.tokens and ":" in token:
+        name, _, rest = token.partition(":")
+        if settings.tokens.get(rest) == name:
+            token = rest
+    return token
+
+
+def health_path() -> str:
+    """``/health`` under the configured mount path."""
+    return settings.mcp_path.rstrip("/") + "/health"
 
 
 class BearerAuth(BaseHTTPMiddleware):
@@ -132,12 +161,20 @@ class BearerAuth(BaseHTTPMiddleware):
         self, request: Request, call_next: Callable[..., Awaitable[Response]]
     ) -> Response:
         """Reject a missing or unknown token (401) or a client over the limit (429)."""
-        if request.url.path == "/health":
+        if request.url.path == health_path():
             return await call_next(request)
-        header = request.headers.get("authorization", "")
-        token = header.removeprefix("Bearer ").strip() if header.startswith("Bearer ") else ""
+        token = _presented_token(request)
         name = settings.tokens.get(token)
         if not name:
+            header = request.headers.get("authorization", "")
+            # Enough to debug a misconfigured client, never the secret itself.
+            audit.warning(
+                "unauthorized: auth_header=%s x_api_key=%s token_len=%d known_tokens=%d",
+                "present" if header else "missing",
+                "present" if request.headers.get("x-api-key") else "missing",
+                len(token),
+                len(settings.tokens),
+            )
             return JSONResponse(
                 {"error": "unauthorized"},
                 status_code=401,
@@ -156,12 +193,20 @@ class BearerAuth(BaseHTTPMiddleware):
 
 def http_app() -> Any:
     """The Starlette app for the HTTP transport, with auth and a health route."""
-    app = mcp.streamable_http_app(host=settings.mcp_host)
+    # Tailscale serve strips its mount path, so behind the Funnel's "/mcp"
+    # handler requests arrive at "/"; MCP_PATH can move it when a proxy keeps
+    # the prefix. The open health route sits beside it at <path>/health.
+    # Stateless: every request stands alone, so a container restart or a
+    # client that forgets its session id never produces "Missing session ID".
+    # Nothing here needs per-session state — every tool is a read.
+    app = mcp.streamable_http_app(
+        host=settings.mcp_host, streamable_http_path=settings.mcp_path, stateless_http=True
+    )
 
     async def health(_: Request) -> JSONResponse:
         return JSONResponse({"status": "ok", "version": __version__})
 
-    app.add_route("/health", health, methods=["GET"])
+    app.add_route(health_path(), health, methods=["GET"])
     app.add_middleware(BearerAuth)
     return app
 

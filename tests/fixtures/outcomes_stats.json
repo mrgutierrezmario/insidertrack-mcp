@@ -1,0 +1,143 @@
+{
+ "labels": [
+  {
+   "label": "Strong Watch",
+   "d30": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   },
+   "d60": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   },
+   "d90": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   }
+  },
+  {
+   "label": "Watch",
+   "d30": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   },
+   "d60": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   },
+   "d90": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   }
+  },
+  {
+   "label": "Neutral",
+   "d30": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   },
+   "d60": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   },
+   "d90": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   }
+  },
+  {
+   "label": "High Risk",
+   "d30": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   },
+   "d60": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   },
+   "d90": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   }
+  },
+  {
+   "label": "Avoid for Now",
+   "d30": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   },
+   "d60": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   },
+   "d90": {
+    "total": 0,
+    "up": 0,
+    "down": 0,
+    "flat": 0,
+    "win_rate": null
+   }
+  }
+ ],
+ "total_snapshots": 135,
+ "tracking_since": "2026-09-20",
+ "latest_snapshot": "2026-09-20",
+ "score_version": 4,
+ "current_version": 4,
+ "versions": [
+  {
+   "version": 1,
+   "snapshots": 1653,
+   "since": "2026-05-16",
+   "until": "2026-09-19"
+  },
+  {
+   "version": 4,
+   "snapshots": 135,
+   "since": "2026-09-20",
+   "until": "2026-09-20"
+  }
+ ]
+}

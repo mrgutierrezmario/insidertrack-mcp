@@ -1,0 +1,46 @@
+{
+ "items": [
+  {
+   "id": 4,
+   "call_date": "2026-09-20",
+   "ticker": "CPAY",
+   "direction": "bearish",
+   "horizon_days": 90,
+   "confidence": 0.84,
+   "reasoning": "CPAY shares a rock-bottom score of 17 ('High Risk') driven by extreme insider distribution totaling 36 Form 4 sales against 0 buys. This relentless executive exit is compounded by a congressional sale and lackluster momentum at a 41.3 RSI.",
+   "provider": "gemini/gemini-flash-latest",
+   "price_at_call": 397.76,
+   "price_at_horizon": null,
+   "return_pct": null,
+   "spy_return_pct": null,
+   "excess_pct": null,
+   "outcome": null,
+   "resolves_on": "2026-12-19"
+  },
+  {
+   "id": 3,
+   "call_date": "2026-09-20",
+   "ticker": "GME",
+   "direction": "bullish",
+   "horizon_days": 30,
+   "confidence": 0.75,
+   "reasoning": "GME leads all insider cluster activity with $21,705,931 purchased across 4 distinct corporate insiders through September 10, 2026. High-dollar multi-insider buying clusters of this scale historically signify near-term positive corporate catalysts.",
+   "provider": "gemini/gemini-flash-latest",
+   "price_at_call": 22.64,
+   "price_at_horizon": null,
+   "return_pct": null,
+   "spy_return_pct": null,
+   "excess_pct": null,
+   "outcome": null,
+   "resolves_on": "2026-10-20"
+  }
+ ],
+ "stats": {
+  "resolved": 0,
+  "pending": 4,
+  "hit_rate": null,
+  "avg_excess": null,
+  "by_horizon": {},
+  "by_direction": {}
+ }
+}
