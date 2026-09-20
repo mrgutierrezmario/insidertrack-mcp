@@ -106,8 +106,9 @@ insidertrack stack (deploy/compose.yml)
 
 The Funnel forwards one port, so a second handler in the stack's Tailscale
 `serve.json` sends `/mcp` to `mcp:8100` (the app stays untouched). Tailscale
-keeps the path, so this server mounts at `/mcp` with its open health route
-at `/mcp/health`. Changing `serve.json` restarts the tailscale container and
+**strips** the mount path (verified 2026-09-20: `/mcp/health` arrives as
+`/health`), so this server mounts at `/` (`MCP_PATH`) with its open health
+route at `/health`; publicly that is `/mcp` and `/mcp/health`. Changing `serve.json` restarts the tailscale container and
 therefore the app (shared network namespace) — deploy outside the app's job
 windows. Locally, `MCP_TRANSPORT=stdio` runs it as a subprocess for Claude
 Code with no network at all.
@@ -157,8 +158,8 @@ insidertrack-mcp/
 
 ## 8. Open questions
 
-1. **Funnel path** — decided: a second `serve.json` handler, path kept,
-   server mounted at `/mcp`. Verified on the Mac in phase 2.
+1. ~~Funnel path~~ — a second `serve.json` handler; Tailscale strips the
+   prefix, server mounted at `/`. Verified live 2026-09-20.
 2. ~~Site-access gate~~ — confirmed 2026-09-20: read endpoints answer from
    the Docker network without it. Two things learned: the app shares the
    Tailscale container's network namespace, so its in-stack hostname is

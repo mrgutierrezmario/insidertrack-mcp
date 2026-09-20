@@ -37,6 +37,6 @@ jobs:
       - name: Smoke
         run: |
           docker run -d --name mcp -p 8100:8100 -e MCP_TOKENS=ci:test insidertrack-mcp:ci
-          for i in $(seq 1 20); do curl -fs http://localhost:8100/mcp/health && break; sleep 1; done
-          curl -fs http://localhost:8100/mcp/health | grep -q '"status":"ok"'
-          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8100/mcp)" = 401
+          for i in $(seq 1 20); do curl -fs http://localhost:8100/health && break; sleep 1; done
+          curl -fs http://localhost:8100/health | grep -q '"status":"ok"'
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8100/)" = 401

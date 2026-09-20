@@ -102,6 +102,11 @@ if settings.writes_enabled:
 # ── HTTP: bearer auth, rate limit, health ─────────────────────────────────────
 
 
+def health_path() -> str:
+    """``/health`` under the configured mount path."""
+    return settings.mcp_path.rstrip("/") + "/health"
+
+
 class BearerAuth(BaseHTTPMiddleware):
     """Require one of the configured tokens on every request except ``/health``."""
 
@@ -114,7 +119,7 @@ class BearerAuth(BaseHTTPMiddleware):
         self, request: Request, call_next: Callable[..., Awaitable[Response]]
     ) -> Response:
         """Reject a missing or unknown token (401) or a client over the limit (429)."""
-        if request.url.path == "/mcp/health":
+        if request.url.path == health_path():
             return await call_next(request)
         header = request.headers.get("authorization", "")
         token = header.removeprefix("Bearer ").strip() if header.startswith("Bearer ") else ""
@@ -138,14 +143,15 @@ class BearerAuth(BaseHTTPMiddleware):
 
 def http_app() -> Any:
     """The Starlette app for the HTTP transport, with auth and a health route."""
-    # Mounted under /mcp: the Funnel forwards the path as-is, so the MCP
-    # endpoint is /mcp and the open health route sits beside it at /mcp/health.
-    app = mcp.streamable_http_app(host=settings.mcp_host, streamable_http_path="/mcp")
+    # Tailscale serve strips its mount path, so behind the Funnel's "/mcp"
+    # handler requests arrive at "/"; MCP_PATH can move it when a proxy keeps
+    # the prefix. The open health route sits beside it at <path>/health.
+    app = mcp.streamable_http_app(host=settings.mcp_host, streamable_http_path=settings.mcp_path)
 
     async def health(_: Request) -> JSONResponse:
         return JSONResponse({"status": "ok", "version": __version__})
 
-    app.add_route("/mcp/health", health, methods=["GET"])
+    app.add_route(health_path(), health, methods=["GET"])
     app.add_middleware(BearerAuth)
     return app
 

@@ -68,9 +68,9 @@ token and refuses without one, from Claude Desktop and claude.ai.
    with one handler, `"/" → http://127.0.0.1:8003`. The plan is a second
    handler `"/mcp" → http://mcp:8100`. Two things to confirm on the Mac
    (they are DESIGN.md open question 1, still open):
-   - Tailscale serve does **not strip** the mount path — the request
-     reaches this server as `/mcp/...`. So mount the MCP app at `/mcp`
-     (and keep `/health` reachable at `/mcp/health`). Do not assume `/`.
+   - ~~Tailscale serve does not strip the mount path~~ — **wrong, verified
+     live 2026-09-20: it strips it.** `/mcp/health` reaches this server as
+     `/health` and `/mcp` as `/`. The server mounts at `/` (`MCP_PATH`).
    - The tailscale container resolves the compose service name `mcp`
      (it is on the stack's default network; the *app* is not a separate
      network member — it shares the tailscale container's netns, which is

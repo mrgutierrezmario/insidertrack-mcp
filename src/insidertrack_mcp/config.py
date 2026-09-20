@@ -34,6 +34,13 @@ class Settings(BaseSettings):
     )
     mcp_host: str = "0.0.0.0"
     mcp_port: int = 8100
+    mcp_path: str = Field(
+        default="/",
+        description=(
+            "Where the MCP endpoint is served. Tailscale serve strips its mount path, so "
+            "behind a '/mcp' handler the server still sees '/'. Health is at <path>/health."
+        ),
+    )
     mcp_tokens: str = Field(
         default="",
         description=(
