@@ -66,6 +66,11 @@ Over HTTP, inside the InsiderTrack Compose stack: add the service from
 `deploy/.env`, and add a `/mcp` handler to the Tailscale serve config
 (Tailscale strips the prefix, so the server itself listens at `/`).
 
+A ready-built image is on GHCR — `ghcr.io/mrgutierrezmario/insidertrack-mcp`
+(`:main` follows the branch, `:0.2.0`-style tags are releases, amd64 and
+arm64). A staging copy runs on Kubernetes from
+[homelab-gitops](https://github.com/mrgutierrezmario/homelab-gitops).
+
 Then connect a client:
 
 | Client | How |

@@ -1,9 +1,12 @@
-# Lint, tests and a Docker build on every push and pull request.
+# Lint, tests and a Docker build on every push and pull request. On main
+# and on version tags the image is also pushed to GHCR, where the staging
+# cluster pulls it (github.com/mrgutierrezmario/homelab-gitops).
 name: CI
 
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
 
 permissions:
@@ -40,3 +43,46 @@ jobs:
           for i in $(seq 1 20); do curl -fs http://localhost:8100/health && break; sleep 1; done
           curl -fs http://localhost:8100/health | grep -q '"status":"ok"'
           test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8100/)" = 401
+
+  push-image:
+    name: Push image to GHCR
+    if: github.event_name == 'push'
+    needs: [test, image]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      # The staging cluster is a VM on an Apple Silicon Mac; production is
+      # x86 or arm depending on the day. Both arches, one manifest.
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          # main → :main (staging follows it) + :main-<sha>; v1.2.3 → :1.2.3, :1.2, :latest
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=main-,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
