@@ -68,8 +68,9 @@ Over HTTP, inside the InsiderTrack Compose stack: add the service from
 
 A ready-built image is on GHCR — `ghcr.io/mrgutierrezmario/insidertrack-mcp`
 (`:main` follows the branch, `:0.2.0`-style tags are releases, amd64 and
-arm64). A staging copy runs on Kubernetes from
-[homelab-gitops](https://github.com/mrgutierrezmario/homelab-gitops).
+arm64). A staging copy ran on Kubernetes from
+[homelab-gitops](https://github.com/mrgutierrezmario/homelab-gitops); it is
+paused (since 2026-09-23) until it moves to its own machine.
 
 Then connect a client:
 

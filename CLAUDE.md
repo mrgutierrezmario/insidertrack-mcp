@@ -83,8 +83,9 @@ Done (commits `723e0d3`, `b1e6679`, `b14e25c`):
 
 - Profile/LinkedIn work done 2026-09-20: GitHub profile README lists this
   project; `design/social-preview.png` is the repo's social image and the
-  LinkedIn post image. Next project (`../homelab-gitops`, designed only)
-  would deploy this server first as its easiest chart.
+  LinkedIn post image. `../homelab-gitops` deployed this server as its
+  first chart (staging, 2026-09-21); the cluster is paused since 2026-09-23
+  until it moves to its own machine.
 
 Not done: phase 4 remainder (enable the write, OAuth) — optional. Decided
 2026-09-20 with the owner: **no in-app chat window in InsiderTrack** for now;
