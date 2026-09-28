@@ -8,6 +8,11 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    # Wait a week before proposing a new release: hijacked package
+    # versions are usually caught and pulled within days. Security
+    # updates skip the wait.
+    cooldown:
+      default-days: 7
     groups:
       python-dependencies:
         patterns: ["*"]
@@ -16,6 +21,11 @@ updates:
     directory: /deploy
     schedule:
       interval: monthly
+    # Wait a week before proposing a new release: hijacked package
+    # versions are usually caught and pulled within days. Security
+    # updates skip the wait.
+    cooldown:
+      default-days: 7
     ignore:
       - dependency-name: python
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
@@ -23,3 +33,8 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    # Wait a week before proposing a new release: hijacked package
+    # versions are usually caught and pulled within days. Security
+    # updates skip the wait.
+    cooldown:
+      default-days: 7
