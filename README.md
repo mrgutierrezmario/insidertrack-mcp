@@ -8,7 +8,7 @@ what a ticker scores and why, and whether those signals actually worked.
 
 **By M.G. Network and Technology Solutions.**
 
-> **v0.2.0** — running in production alongside InsiderTrack: eleven read tools,
+> **v0.2.0** — running in production alongside InsiderTrack: twelve read tools,
 > two resources, two prompts, token-gated over the public URL. Connected to
 > claude.ai as a custom connector. Design notes in [DESIGN.md](DESIGN.md).
 
@@ -95,6 +95,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"   # make a token
 | `cluster_buys` | "Where are several insiders buying their own stock?" — market-wide Form 4 clusters |
 | `member_track_record` | "How have Pelosi's buys actually done?" — 30/60/90-day returns vs SPY, buys and sales, the weight it earns |
 | `leaderboard` | "Which members beat the market most often?" — ranked by 90-day beat-SPY rate |
+| `late_filers` | "Who reports their trades late?" — members ranked by trades disclosed past the STOCK Act's 45-day limit, with the worst filing linked |
 | `signal_outcomes` | "Does 'Strong Watch' actually go up — and beat SPY?" — hit-rates and excess vs SPY per label per scoring version |
 | `model_desk` | "What did the site's model call this morning, and how have its calls scored?" |
 | `fund_leaderboard` | "Which 13F funds' position changes actually beat the market?" — measured from the filing's public date, not quarter end |

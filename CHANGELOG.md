@@ -6,6 +6,10 @@ versions: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- `late_filers`: members of Congress ranked by trades disclosed more than 45 days after they
+  happened (the STOCK Act's outer deadline), all history or the last N days, with share late,
+  typical and longest delay, and the worst filing's link. Needs InsiderTrack's
+  `GET /politicians/late-filers` (2026-10-16).
 - `signal_outcomes` reports each label against SPY over the same trading days: average return,
   average excess in percentage points, and how often it beat SPY (`avg_excess_vs_spy_pts`,
   `beat_spy_rate_pct`). A raw win rate in a rising market says little; these say whether a

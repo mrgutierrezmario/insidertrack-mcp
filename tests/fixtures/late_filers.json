@@ -1,0 +1,68 @@
+{
+ "late_after_days": 45,
+ "window_days": 365,
+ "trades": 3897,
+ "late_trades": 757,
+ "late_pct": 19.4,
+ "members_with_trades": 95,
+ "members_late": 28,
+ "items": [
+  {
+   "id": 95,
+   "name": "Alan Armstrong",
+   "party": "R",
+   "chamber": "senate",
+   "state": "OK",
+   "trades": 369,
+   "late_trades": 365,
+   "late_pct": 98.9,
+   "late_filings": 1,
+   "median_lag_days": 116,
+   "worst": {
+    "lag_days": 119,
+    "trade_date": "2026-03-24",
+    "disclosure_date": "2026-07-21",
+    "filing_url": "https://efdsearch.senate.gov/search/view/ptr/fda235b3-bad7-4637-8fa1-053f354d929c/"
+   },
+   "latest_late_disclosure": "2026-07-21"
+  },
+  {
+   "id": 167,
+   "name": "Julia Letlow",
+   "party": "R",
+   "chamber": "house",
+   "state": "LA",
+   "trades": 202,
+   "late_trades": 162,
+   "late_pct": 80.2,
+   "late_filings": 1,
+   "median_lag_days": 347,
+   "worst": {
+    "lag_days": 447,
+    "trade_date": "2024-10-23",
+    "disclosure_date": "2026-01-13",
+    "filing_url": "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20030977.pdf"
+   },
+   "latest_late_disclosure": "2026-01-13"
+  },
+  {
+   "id": 48,
+   "name": "Julie Johnson",
+   "party": "D",
+   "chamber": "house",
+   "state": "TX",
+   "trades": 156,
+   "late_trades": 73,
+   "late_pct": 46.8,
+   "late_filings": 1,
+   "median_lag_days": 316,
+   "worst": {
+    "lag_days": 508,
+    "trade_date": "2025-03-15",
+    "disclosure_date": "2026-08-05",
+    "filing_url": "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2026/20035035.pdf"
+   },
+   "latest_late_disclosure": "2026-08-05"
+  }
+ ]
+}

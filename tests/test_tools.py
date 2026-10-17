@@ -152,6 +152,32 @@ async def test_leaderboard_rows(upstream):
     ]
 
 
+# ── late_filers ───────────────────────────────────────────────────────────────
+
+
+async def test_late_filers_passes_window_and_reshapes(upstream):
+    route = ok(upstream, "/politicians/late-filers", "late_filers")
+    result = await tools.late_filers(days=365, limit=2)
+    params = route.calls.last.request.url.params
+    assert params["days"] == "365" and params["limit"] == "2"
+    assert result["deadline_days"] == 45 and result["window_days"] == 365
+    assert result["late_trades"] == 757 and result["members_late"] == 28
+    assert len(result["members"]) == 2
+    top = result["members"][0]
+    assert top["member"]["name"] == "Alan Armstrong" and top["member"]["chamber"] == "senate"
+    assert (top["late_trades"], top["trades"], top["late_reports"]) == (365, 369, 1)
+    assert top["longest_delay"]["days"] == 119
+    assert top["longest_delay"]["filing_url"].startswith("https://efdsearch.senate.gov/")
+    assert "disclaimer" in result
+
+
+async def test_late_filers_all_history_sends_no_days_and_clamps(upstream):
+    route = ok(upstream, "/politicians/late-filers", "late_filers")
+    await tools.late_filers(limit=500)
+    params = route.calls.last.request.url.params
+    assert "days" not in params and params["limit"] == "50"
+
+
 # ── signal_outcomes ───────────────────────────────────────────────────────────
 
 

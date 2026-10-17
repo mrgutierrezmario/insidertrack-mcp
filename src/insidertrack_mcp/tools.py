@@ -388,6 +388,62 @@ async def leaderboard(min_trades: int = 10, limit: int = 20) -> dict[str, Any]:
     )
 
 
+# ── late_filers ───────────────────────────────────────────────────────────────
+
+
+async def late_filers(days: int | None = None, limit: int = 15) -> dict[str, Any]:
+    """Members of Congress who disclose trades after the STOCK Act deadline.
+
+    A trade must be reported no later than 45 days after it happened. This
+    ranks members by how many of their trades were disclosed later than
+    that (trade date to filing date), with the share late, how many reports,
+    the typical and longest delay, and a link to the worst filing. Late
+    usually means one big catch-up report covering many trades; a multi-year
+    "longest" can be a typo in the filing itself — the link lets a reader
+    check. Late filing is a disclosure failure, not evidence of insider
+    trading; say so if the user implies otherwise.
+
+    Args:
+        days: Only trades disclosed in the last N days, 1-3650; omit for all history.
+        limit: Members to return, 1-50 (default 15).
+    """
+    params: dict[str, Any] = {"limit": max(1, min(limit, 50))}
+    if days is not None:
+        params["days"] = max(1, min(days, 3650))
+    data = await client.get("/politicians/late-filers", params)
+    if client.is_error(data):
+        return data
+    return envelope(
+        {
+            "deadline_days": data.get("late_after_days"),
+            "window_days": data.get("window_days"),
+            "trades": data.get("trades"),
+            "late_trades": data.get("late_trades"),
+            "late_pct": data.get("late_pct"),
+            "members_with_trades": data.get("members_with_trades"),
+            "members_late": data.get("members_late"),
+            "members": [
+                {
+                    "member": _politician(r),
+                    "late_trades": r.get("late_trades"),
+                    "trades": r.get("trades"),
+                    "late_pct": r.get("late_pct"),
+                    "late_reports": r.get("late_filings"),
+                    "median_delay_days": r.get("median_lag_days"),
+                    "longest_delay": {
+                        "days": (r.get("worst") or {}).get("lag_days"),
+                        "traded": (r.get("worst") or {}).get("trade_date"),
+                        "disclosed": (r.get("worst") or {}).get("disclosure_date"),
+                        "filing_url": (r.get("worst") or {}).get("filing_url"),
+                    },
+                    "latest_late_report": r.get("latest_late_disclosure"),
+                }
+                for r in cap_rows(data.get("items", []), params["limit"])
+            ],
+        }
+    )
+
+
 # ── signal_outcomes ───────────────────────────────────────────────────────────
 
 
@@ -620,6 +676,7 @@ TOOLS = (
     cluster_buys,
     member_track_record,
     leaderboard,
+    late_filers,
     signal_outcomes,
     model_desk,
     fund_leaderboard,
