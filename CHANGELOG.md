@@ -3,6 +3,15 @@
 All notable changes to InsiderTrack MCP. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions: [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- `signal_outcomes` reports each label against SPY over the same trading days: average return,
+  average excess in percentage points, and how often it beat SPY (`avg_excess_vs_spy_pts`,
+  `beat_spy_rate_pct`). A raw win rate in a rising market says little; these say whether a
+  label has an edge. Needs InsiderTrack's `/outcomes/stats` from 2026-10-16 or later; older
+  instances return `null` for the new fields.
+
 ## [0.2.0] — 2026-09-20
 
 ### Added

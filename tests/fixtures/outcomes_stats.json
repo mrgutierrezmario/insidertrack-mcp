@@ -55,7 +55,11 @@
     "up": 0,
     "down": 0,
     "flat": 0,
-    "win_rate": null
+    "win_rate": null,
+    "avg_return": 1.8,
+    "avg_excess": -0.6,
+    "beat_spy_rate": 44.2,
+    "spy_measured": 120
    },
    "d60": {
     "total": 0,

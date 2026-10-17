@@ -95,7 +95,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"   # make a token
 | `cluster_buys` | "Where are several insiders buying their own stock?" — market-wide Form 4 clusters |
 | `member_track_record` | "How have Pelosi's buys actually done?" — 30/60/90-day returns vs SPY, buys and sales, the weight it earns |
 | `leaderboard` | "Which members beat the market most often?" — ranked by 90-day beat-SPY rate |
-| `signal_outcomes` | "Does 'Strong Watch' actually go up?" — hit-rates per label per scoring version |
+| `signal_outcomes` | "Does 'Strong Watch' actually go up — and beat SPY?" — hit-rates and excess vs SPY per label per scoring version |
 | `model_desk` | "What did the site's model call this morning, and how have its calls scored?" |
 | `fund_leaderboard` | "Which 13F funds' position changes actually beat the market?" — measured from the filing's public date, not quarter end |
 | `fund_track_record` | "How did Renaissance's new and increased positions do?" — 30/60/90-day returns vs SPY, buys and sales |

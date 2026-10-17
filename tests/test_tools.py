@@ -162,7 +162,20 @@ async def test_signal_outcomes_reshapes_windows(upstream):
     assert result["score_version"] == 4 and result["total_snapshots"] == 135
     strong = result["labels"][0]
     assert strong["label"] == "Strong Watch"
-    assert strong["d30"] == {"resolved": 0, "up": 0, "down": 0, "flat": 0, "win_rate_pct": None}
+    assert strong["d30"] == {
+        "resolved": 0,
+        "up": 0,
+        "down": 0,
+        "flat": 0,
+        "win_rate_pct": None,
+        "avg_return_pct": None,
+        "avg_excess_vs_spy_pts": None,
+        "beat_spy_rate_pct": None,
+        "spy_measured": None,
+    }
+    neutral = result["labels"][2]["d30"]
+    assert neutral["avg_excess_vs_spy_pts"] == -0.6 and neutral["beat_spy_rate_pct"] == 44.2
+    assert neutral["spy_measured"] == 120
     assert result["versions"][0]["version"] == 1
 
 

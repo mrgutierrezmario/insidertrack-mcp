@@ -392,13 +392,16 @@ async def leaderboard(min_trades: int = 10, limit: int = 20) -> dict[str, Any]:
 
 
 async def signal_outcomes(score_version: int | None = None) -> dict[str, Any]:
-    """Does a label actually go up? Hit-rates of every score bucket at 30/60/90 days.
+    """Does a label actually go up — and beat the market? Every score bucket at 30/60/90 days.
 
     InsiderTrack snapshots every ticker's score daily and fills in what the
     price did 30, 60 and 90 days later. This is the scorecard: per label, how
-    many snapshots resolved, how many went up/down/flat, and the win rate.
+    many snapshots resolved, how many went up/down/flat, the win rate, and —
+    against SPY over the same trading days — the average excess return in
+    percentage points and how often the label beat SPY. A label that goes up
+    in a rising market but trails SPY has no edge; lead with the SPY numbers.
     Scoring regimes change over time; results are per version (default: the
-    current one). Small `total`s mean the regime is young — say so.
+    current one). Small `resolved` counts mean the regime is young — say so.
 
     Args:
         score_version: Restrict to one scoring regime; default is the current one.
@@ -423,6 +426,10 @@ async def signal_outcomes(score_version: int | None = None) -> dict[str, Any]:
                             "down": (row.get(w) or {}).get("down"),
                             "flat": (row.get(w) or {}).get("flat"),
                             "win_rate_pct": (row.get(w) or {}).get("win_rate"),
+                            "avg_return_pct": (row.get(w) or {}).get("avg_return"),
+                            "avg_excess_vs_spy_pts": (row.get(w) or {}).get("avg_excess"),
+                            "beat_spy_rate_pct": (row.get(w) or {}).get("beat_spy_rate"),
+                            "spy_measured": (row.get(w) or {}).get("spy_measured"),
                         }
                         for w in ("d30", "d60", "d90")
                     },

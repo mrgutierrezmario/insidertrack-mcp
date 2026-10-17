@@ -51,7 +51,7 @@ recover.
 | `insider_transactions` | `ticker`, `days?`, `type?` buy/sell | Form 4 rows: insider, title, code, shares, price, value, dates, source URL | `GET /insiders/` |
 | `member_track_record` | `politician_id` | buys and sales measured at 30/60/90 d vs SPY: n, win rate, average excess, the weight it earns in the score; last 20 trades | `GET /politicians/{id}/track-record`, `/trades` |
 | `leaderboard` | `min_trades` (default 10), `limit` ≤ 50 | members ranked by 90-day beat-SPY rate | `GET /politicians/leaderboard` |
-| `signal_outcomes` | `score_version?`, `window_days?` | hit-rate per label at 30/60/90 d, n per cell — "does Strong Watch go up?" | `GET /outcomes/stats` |
+| `signal_outcomes` | `score_version?`, `window_days?` | hit-rate and excess vs SPY per label at 30/60/90 d, n per cell — "does Strong Watch go up, and beat the market?" | `GET /outcomes/stats` |
 | `model_desk` | `date?` (default today), `include_history` | the morning brief and 3–5 calls with direction, horizon, confidence, reasoning; resolved calls with hit/miss and excess vs SPY | `GET /ai-desk/today`, `/ai-desk/calls` |
 | `watchlist_add` *(writes on)* | `ticker` | added / already watching | `POST /watchlist/` `{email, ticker}` with the owner's watchlist bearer token from env |
 
