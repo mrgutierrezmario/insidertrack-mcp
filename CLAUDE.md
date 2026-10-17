@@ -4,7 +4,8 @@ Read this before touching anything. It says what is done, what is left,
 and — most of all — how to finish this server **without breaking the
 InsiderTrack app it reads from**. The app is live, public, on a Mac at home,
 and it has scheduled jobs and a data pipeline that this project must never
-disturb. Written 2026-09-20 from the state of both repos on that day.
+disturb. Written 2026-09-20 from the state of both repos on that day;
+updated 2026-10-16 (v0.3.0, InsiderTrack 1.2.0).
 
 Companion documents: `DESIGN.md` (the decisions and the tool table),
 `README.md`, `CHANGELOG.md`. Where this file and DESIGN.md disagree, this
@@ -81,6 +82,14 @@ Done (commits `723e0d3`, `b1e6679`, `b14e25c`):
 - **v0.2.0** (2026-09-20): `fund_leaderboard`, `fund_track_record`, funds in
   `search`; the stateless-transport and `X-API-Key` fixes are now in a tag.
 
+- **v0.3.0** (2026-10-16): twelve read tools. New `late_filers` (members
+  ranked by trades disclosed > 45 days after the trade, from the app's
+  `GET /politicians/late-filers`); `signal_outcomes` now also returns each
+  label's average excess vs SPY and beat-SPY rate, and its description tells
+  the model to lead with those. Both need InsiderTrack ≥ 1.2.0. The tool
+  description for `late_filers` says late filing is a disclosure failure,
+  not evidence of insider trading — keep that.
+
 - Profile/LinkedIn work done 2026-09-20: GitHub profile README lists this
   project; `design/social-preview.png` is the repo's social image and the
   LinkedIn post image. `../homelab-gitops` deployed this server as its
@@ -126,10 +135,12 @@ token and refuses without one, from Claude Desktop and claude.ai.
    env token cannot work and must not be attempted. Remove that line. The
    one planned write (`watchlist_add`) uses the owner's watchlist token
    instead — see §6a.
-4. **Deploying without hurting the app.** The stack is (re)started from
-   the dev container with `deploy/start.sh` in the app repo, which needs
-   `DOCKER_CONFIG` pointing at a dir holding an empty `{}` `config.json`
-   (the dev container's Docker creds store is broken). Facts that matter:
+4. **Deploying without hurting the app.** The stack is (re)started with
+   `deploy/start.sh` in the app repo — since October 2026 straight from
+   the Mac (it falls back to anonymous pulls by itself when a Docker
+   credential helper can't run, so no `DOCKER_CONFIG` dance). Its old
+   "Funnel is not enabled" warning was a false alarm (a `pipefail` bug,
+   fixed in the app's 1.2.0); if it appears now, it is real. Facts that matter:
    - Changing `serve.json` restarts the tailscale container, and the app
      shares its network namespace, so **the app restarts too**. `start.sh`
      refuses to do this while `GET /jobs/running` reports a backfill /
@@ -215,9 +226,23 @@ token and refuses without one, from Claude Desktop and claude.ai.
     filterable by `ticker`, `direction`, `owner`, `asset_type`,
     `politician_id`, `since`, `until`. Rows carry `filing_url`,
     `ai_confidence` (paper rows only), `amends`.
+  - `GET /politicians/late-filers?days=&limit=` (app ≥ 1.2.0) →
+    `{late_after_days: 45, window_days, trades, late_trades, late_pct,
+    members_with_trades, members_late, items: [{id, name, party, chamber,
+    state, trades, late_trades, late_pct, late_filings, median_lag_days,
+    worst: {lag_days, trade_date, disclosure_date, filing_url},
+    latest_late_disclosure}]}`. Late = disclosure_date − trade_date > 45
+    days; ~17% of all trades, mostly a few big catch-up reports (checked
+    against the House PDFs). A multi-year `worst` can be the filer's typo.
+  - `GET /outcomes/stats` windows (`d30|d60|d90`) carry, besides
+    `total/up/down/flat/win_rate`, `avg_return`, `avg_excess` (points vs
+    SPY over the same trading days), `beat_spy_rate` and `spy_measured`
+    (app ≥ 1.2.0; `null`/0 before). SPY rose ~2% over most v1 windows, so
+    `beat_spy_rate` often equals `win_rate` — that is real, not a bug.
 - **Score version is 4.** `signal_outcomes` should default to the current
   version; older snapshots are not comparable and the app's
-  `/outcomes/stats` already defaults that way.
+  `/outcomes/stats` already defaults that way. v4's first 30-day outcomes
+  resolve around 2026-10-20, 90-day ones mid-December.
 
 ## 6. Endpoints this server must never call
 
@@ -287,10 +312,19 @@ backlog. None blocks phases 2–3.
 ## 8. Gotchas that have already cost time
 
 - `ugrep` is aliased over `grep` in the dev container; `rg` is absent.
-- Backend tests for the **app** can't run natively (dev container is
-  Python 3.14, pinned deps have no wheels) — they run inside the app image.
-  This repo is Python 3.12 with its own `.venv`; `.venv/bin/pytest` works
-  natively. Don't mix the two.
+- The repos' own `.venv` folders belong to the `mgntsdev-dev` dev
+  container (their interpreter links point inside it) and fail on the Mac.
+  Don't rebuild or delete them. On the Mac use `~/.venvs/insidertrack-mcp`
+  (`pip install -e ".[dev]"`; `pytest -q`, `ruff check .`,
+  `ruff format --check .`) and `~/.venvs/insidertrack-backend` for the app
+  (`pip install -r app/ui_backend/requirements-dev.txt`). Without Postgres,
+  the app's `test_persistent_cache.py` fails (6 failed, 9 errors) — start a
+  throwaway `postgres:18-alpine` container, point `DATABASE_URL` at it, run
+  `init_db()` once, and the whole suite passes.
+- The app backend now has an errors-only `ruff.toml` (F, E9; formatting
+  excluded on purpose), run by CI and by the owner's global pre-commit
+  hook. This repo is fully ruff-formatted and CI checks that — run
+  `ruff format` before committing here.
 - The app's `main` is protected (CI checks required; admin may push). Push
   small commits; each must pass backend/frontend/image CI.
 - Two Claude sessions were working in the app repo at once on 2026-09-20

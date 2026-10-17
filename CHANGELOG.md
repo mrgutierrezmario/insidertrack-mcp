@@ -5,6 +5,8 @@ versions: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-10-16
+
 ### Added
 - `late_filers`: members of Congress ranked by trades disclosed more than 45 days after they
   happened (the STOCK Act's outer deadline), all history or the last N days, with share late,
@@ -51,5 +53,6 @@ First release: in production next to InsiderTrack, connected to claude.ai.
 - Docker image, Compose snippet for the InsiderTrack stack, CI (ruff, pytest, image build +
   smoke), Dependabot with auto-merge for patch/minor bumps.
 
+[0.3.0]: https://github.com/mrgutierrezmario/insidertrack-mcp/releases/tag/v0.3.0
 [0.2.0]: https://github.com/mrgutierrezmario/insidertrack-mcp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/mrgutierrezmario/insidertrack-mcp/releases/tag/v0.1.0

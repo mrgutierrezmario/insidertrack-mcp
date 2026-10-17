@@ -8,7 +8,7 @@ what a ticker scores and why, and whether those signals actually worked.
 
 **By M.G. Network and Technology Solutions.**
 
-> **v0.2.0** — running in production alongside InsiderTrack: twelve read tools,
+> **v0.3.0** — running in production alongside InsiderTrack: twelve read tools,
 > two resources, two prompts, token-gated over the public URL. Connected to
 > claude.ai as a custom connector. Design notes in [DESIGN.md](DESIGN.md).
 
