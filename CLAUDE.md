@@ -241,8 +241,11 @@ token and refuses without one, from Claude Desktop and claude.ai.
     `beat_spy_rate` often equals `win_rate` — that is real, not a bug.
 - **Score version is 4.** `signal_outcomes` should default to the current
   version; older snapshots are not comparable and the app's
-  `/outcomes/stats` already defaults that way. v4's first 30-day outcomes
-  resolve around 2026-10-20, 90-day ones mid-December.
+  `/outcomes/stats` already defaults that way. Outcomes resolve 30/60/90
+  *trading* days after a snapshot (filled by the app's 07:30 ET job), so
+  v4's first ones (snapshot 2026-09-20) land 2026-10-30, 2026-12-11 and
+  2027-01-22. The Outcomes page's "fills <date>" adds calendar days and
+  shows earlier dates — a display bug in the app, not a data delay.
 
 ## 6. Endpoints this server must never call
 
