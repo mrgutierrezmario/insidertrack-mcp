@@ -9,15 +9,15 @@ authors = [{ name = "M.G. Network and Technology Solutions" }]
 dependencies = [
     "mcp==2.3.0",
     "httpx==0.28.1",
-    "pydantic-settings==2.16.1",
+    "pydantic-settings==2.16.2",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest==9.1.1",
-    "pytest-asyncio==1.4.1",
+    "pytest==9.2.0",
+    "pytest-asyncio==1.4.1.post1",
     "respx==0.23.1",
-    "ruff==0.17.2",
+    "ruff==0.17.3",
 ]
 
 [project.scripts]
